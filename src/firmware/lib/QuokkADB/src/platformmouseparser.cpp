@@ -25,6 +25,8 @@
 //
 //---------------------------------------------------------------------------
 
+#include <algorithm>
+
 #include "platformmouseparser.h"
 #include <platform_logmsg.h>
 #include <adb_platform.h>
@@ -35,34 +37,30 @@
 
 extern FlashSettings setting_storage;
 
-int8_t PlatformMouseParser::AdjustMovement(int32_t coarse, int32_t fine)
+int8_t PlatformMouseParser::AdjustMovement(int32_t& axis)
 {
-    uint8_t sensitivity_divisor = setting_storage.settings()->sensitivity_divisor;
-    // adb_move is currently the sum of all usb movement
-    // this is where the sensitivity is adjusted
-    int32_t adjusted = coarse / sensitivity_divisor;
+    // axis is the current sum of all usb movement
+    auto sensitivity_divisor = setting_storage.settings()->sensitivity_divisor;
 
-    // Adjust adb movement with accumulated fine movements
-    int8_t increment = fine / sensitivity_divisor;
-    adjusted += increment;
+    int32_t scaled = 0;
 
-    // Limits of a 7 bit number
-    if (adjusted > 63) adjusted = 63;
-    if (adjusted < -64) adjusted = -64;
+    // take whatever we can fit into this report (after scaling); leave the
+    // rest for the next report. Limits are a signed 7 bit number
+    if (axis > 0) {
+        scaled = std::min(axis / sensitivity_divisor, 63L);
+    } else if (axis < 0) {
+        scaled = std::max(axis / sensitivity_divisor, -64L);
+    }
+    axis -= scaled * sensitivity_divisor;
 
-    return (int8_t) adjusted & 0x7F;
+    return static_cast<int8_t>(scaled & 0x7F);
 }
 
 void PlatformMouseParser::Parse(const hid_mouse_report_t *report){
-    uint8_t sensitivity_divisor = setting_storage.settings()->sensitivity_divisor;
     MOUSEINFO mouse_info = {0};
 
     if (m_processed)
     {
-        m_coarse_x = 0;
-        m_coarse_y = 0;
-        m_fine_x %= sensitivity_divisor;
-        m_fine_y %= sensitivity_divisor;
         m_processed = false;
     }
 
@@ -72,11 +70,8 @@ void PlatformMouseParser::Parse(const hid_mouse_report_t *report){
     mouse_info.dX = report->x;
     mouse_info.dY = report->y;
 
-    m_coarse_x += mouse_info.dX;
-    m_coarse_y += mouse_info.dY;
-
-    if (mouse_info.dX / sensitivity_divisor == 0) m_fine_x += mouse_info.dX;
-    if (mouse_info.dY / sensitivity_divisor == 0) m_fine_y += mouse_info.dY;
+    m_x += mouse_info.dX;
+    m_y += mouse_info.dY;
 
     if(mouse_info.dX != 0 || mouse_info.dY != 0) {
         OnMouseMove(&mouse_info);
