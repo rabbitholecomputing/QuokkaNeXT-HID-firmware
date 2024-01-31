@@ -1,11 +1,11 @@
 //---------------------------------------------------------------------------
 //
-//	QuokkaADB ADB keyboard and mouse adapter
+//	QuokkADB ADB keyboard and mouse adapter
 //
 //     Copyright (C) 2019 Ha Thach (tinyusb.org)
 //     Copyright (C) 2022 Rabbit Hole Computing LLC
 //
-//  This file is part of QuokkaADB.
+//  This file is part of QuokkADB.
 //
 //  This file is free software: you can redistribute it and/or modify it under 
 //  the terms of the GNU General Public License as published by the Free 

@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 //
-//	ADBuino & QuokkaADB ADB keyboard and mouse adapter
+//	ADBuino & QuokkADB ADB keyboard and mouse adapter
 //
 //     Copyright 2011 Jun WAKO <wakojun@gmail.com>
 //     Copyright 2013 Shay Green <gblargg@gmail.com>
@@ -9,7 +9,7 @@
 //	   Copyright (C) 2021-2022 akuker
 //     Copyright (C) 2022 Rabbit Hole Computing LLC
 //
-//  This file is part of the ADBuino and the QuokkaADB projects.
+//  This file is part of the ADBuino and the QuokkADB projects.
 //
 //  This file is free software: you can redistribute it and/or modify it under 
 //  the terms of the GNU General Public License as published by the Free 
