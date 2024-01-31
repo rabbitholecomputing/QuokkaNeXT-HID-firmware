@@ -107,7 +107,7 @@ protected:
         virtual void OnMiddleButtonDown(MOUSEINFO *mi __attribute__((unused))) {
         };
 
-        int8_t AdjustMovement(int32_t coarse, int32_t fine);
+        int8_t AdjustMovement(int32_t& axis);
 
         SCQueue<MOUSE_CLICK*, MOUSE_CLICK_QUEUE_CAPACITY> m_click_events;
 
@@ -115,10 +115,9 @@ protected:
 
         bool m_processed = false;
         bool m_ready = false;
-        int32_t m_coarse_x = 0;
-        int32_t m_coarse_y = 0;
-        int32_t m_fine_x = 0;
-        int32_t m_fine_y = 0;
+
+        int32_t m_x = 0;
+        int32_t m_y = 0;
 
         MouseRightBtnMode m_right_btn_mode = MouseRightBtnMode::ctrl_click;
 };

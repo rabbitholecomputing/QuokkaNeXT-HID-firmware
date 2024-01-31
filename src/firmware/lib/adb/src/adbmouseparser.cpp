@@ -66,10 +66,10 @@ uint16_t ADBMouseRptParser::GetAdbRegister0()
         reg_value |= (1 << 7);
     }
     // Bits 14-8 = Y move Counts (Two's compliment. Negative = up, positive = down)
-    reg_value |= AdjustMovement(m_coarse_y, m_fine_y) << 8;
+    reg_value |= AdjustMovement(m_y) << 8;
 
     // Bits 6-0 = X move counts (Two's compliment. Negative = left, positive = right)
-    reg_value |= AdjustMovement(m_coarse_x, m_fine_x) << 0;
+    reg_value |= AdjustMovement(m_x) << 0;
 
     if (click != nullptr)
     {

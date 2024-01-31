@@ -35,7 +35,7 @@
 #define KBD_DEFAULT_ADDR 0x02
 #define KBD_DEFAULT_HANDLER_ID 0x02
 #define MOUSE_DEFAULT_ADDR 0x03
-#define MOUSE_DEFAULT_HANDLER_ID 0x01
+#define MOUSE_DEFAULT_HANDLER_ID 0x02
 #define KDB_EXTENDED_HANDLER_ID 0x3
 
 extern volatile bool adb_collision;
