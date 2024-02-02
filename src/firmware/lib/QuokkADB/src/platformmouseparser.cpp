@@ -57,6 +57,8 @@ int8_t PlatformMouseParser::AdjustMovement(int32_t& axis)
 }
 
 void PlatformMouseParser::Parse(const hid_mouse_report_t *report){
+    auto sensitivity_divisor = setting_storage.settings()->sensitivity_divisor;
+        
     MOUSEINFO mouse_info = {0};
 
     if (m_processed)
@@ -72,6 +74,8 @@ void PlatformMouseParser::Parse(const hid_mouse_report_t *report){
 
     m_x += mouse_info.dX;
     m_y += mouse_info.dY;
+
+    auto significant_motion = (m_x >= sensitivity_divisor || m_x <= -sensitivity_divisor || m_y >= sensitivity_divisor || m_y <= -sensitivity_divisor);
 
     if(mouse_info.dX != 0 || mouse_info.dY != 0) {
         OnMouseMove(&mouse_info);
@@ -198,5 +202,7 @@ void PlatformMouseParser::Parse(const hid_mouse_report_t *report){
         }
     }
     memcpy(prevState.bInfo, &mouse_info, sizeof(prevState.bInfo));
-    m_ready = true;
+    if (significant_motion) {
+        m_ready = true;
+    }
 }
