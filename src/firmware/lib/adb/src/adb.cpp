@@ -43,7 +43,6 @@ uint8_t mousepending = 0;
 uint8_t kbdpending = 0;
 uint8_t kbdskip = 0;
 uint16_t kbdprev0 = 0;
-uint16_t mousereg0 = 0;
 uint16_t kbdreg0 = 0;
 uint16_t kbdreg2 = 0xFFFF;
 uint8_t kbdsrq = 0;

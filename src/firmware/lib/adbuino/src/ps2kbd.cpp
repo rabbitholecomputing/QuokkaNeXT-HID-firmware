@@ -35,7 +35,6 @@ extern uint8_t mousepending;
 extern uint8_t kbdpending;
 extern uint8_t kbdskip;
 extern uint16_t kbdprev0;
-extern uint16_t mousereg0;
 extern uint16_t kbdreg0;
 extern uint8_t kbdsrq;
 extern uint8_t mousesrq;
