@@ -125,16 +125,6 @@ void KbdRptParser::OnKeyDown(uint8_t mod, uint8_t key)
     {
         Logmsg.println("Warning! unable to enqueue new KeyDown");
     }
-    // If power button replacement queue key twice
-    else if (key == USB_KEY_PAUSE || key == USB_KEY_F15)
-    {
-        if (!m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyDown, mod)))
-        {
-            Logmsg.println("Warning! unable to enqueue new Power Button KeyDown");
-        }
-    }
-
-
 
     if (key == USB_KEY_NUMLOCK)
     {
@@ -187,14 +177,6 @@ void KbdRptParser::OnKeyUp(uint8_t mod, uint8_t key)
             Logmsg.println("Warning! unable to enqueue new KeyDown");
         }
     
-        // If power button replacement queue key twice
-        else if (key == USB_KEY_PAUSE || key == USB_KEY_F15)
-        {
-            if (!m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyUp, mod)))
-            {
-                Logmsg.println("Warning! unable to enqueue new Power Button KeyUp");
-            }
-        }
         if (key == USB_KEY_BACKSPACE)
         {
             B_UNSET(m_custom_mod_keys, DeleteFlag);
