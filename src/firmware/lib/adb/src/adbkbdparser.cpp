@@ -71,7 +71,7 @@ uint16_t ADBKbdRptParser::GetAdbRegister0()
     if (adb_keycode == ADB_POWER_KEYCODE) {
         if (isKeyUp)
         {
-            B_SET(kbdreg0, ADB_REG_0_KEY_1_STATUS_BIT);
+            B_SET(kbdreg0, ADB_REG_0_KEY_2_STATUS_BIT);
         }
         kbdreg0 |= (adb_keycode << ADB_REG_0_KEY_2_KEY_CODE);
     }

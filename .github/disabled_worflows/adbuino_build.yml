@@ -11,7 +11,7 @@ jobs:
     
     steps:
       - name: Check out code from GitHub
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: adbuino
           fetch-depth: "0"
@@ -34,7 +34,7 @@ jobs:
           utils/rename_adbuino_binaries.sh
 
       - name: Upload binaries into build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: adbuino/src/firmware/distrib/*
           name: ADBuino binaries
