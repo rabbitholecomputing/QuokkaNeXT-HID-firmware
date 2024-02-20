@@ -68,6 +68,7 @@ void FlashSettings::clear()
 void FlashSettings::reset()
 {
     _settings.led_on = 1;
+    _settings.swap_modifiers = 0;
     _settings.sensitivity_divisor = DEFAULT_MOUSE_SENSITIVITY_DIVISOR;
 }
 
