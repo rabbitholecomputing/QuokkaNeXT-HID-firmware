@@ -84,7 +84,6 @@ usbkey_t char_to_usb_keycode(char character)
         return key;
     }
 
-
     if (character == '\n')
     {
         key.keycode = USB_KEY_ENTER;
@@ -141,7 +140,25 @@ usbkey_t char_to_usb_keycode(char character)
         return key;
     }
 
+    if (character == '<')
+    {
+        key.keycode = USB_KEY_COMMA;
+        key.shift_down = true;
+        return key;
+    }
 
+    if (character == '<')
+    {
+        key.keycode = USB_KEY_COMMA;
+        key.shift_down = true;
+        return key;
+    }
+    if (character == '>')
+    {
+        key.keycode = USB_KEY_DOT;
+        key.shift_down = true;
+        return key;
+    }
 
     key.keycode = 0;
     key.shift_down = false;

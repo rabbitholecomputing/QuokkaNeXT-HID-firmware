@@ -33,7 +33,8 @@ struct __attribute((packed)) QuokkADBSettings
 {
     uint16_t magic_number;
     uint8_t led_on: 1;
-    uint8_t reserved_bits: 7;
+    uint8_t swap_modifiers: 1;
+    uint8_t reserved_bits: 6;
     uint8_t sensitivity_divisor;
     uint8_t reserved_bytes[252];
 };
