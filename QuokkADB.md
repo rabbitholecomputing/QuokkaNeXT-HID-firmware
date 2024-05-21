@@ -1,1 +1,0 @@
-[QuokkADB documentation](https://github.com/rabbitholecomputing/QuokkADB-firmware/wiki/QuokkADB-Documentation) can be found on the wiki, at https://github.com/rabbitholecomputing/QuokkADB-firmware/wiki/QuokkADB-Documentation

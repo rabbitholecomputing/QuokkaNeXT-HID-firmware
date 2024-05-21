@@ -5,7 +5,7 @@ people. This is being distributed under the GPL v3 (or later) license.
 The following copyright notice should be included with distributions of 
 this source code:
     Copyright 2021-2023 Tony Kuker
-    Copyright 2022-2023 Rabbit Hole Computing LLC
+    Copyright 2022-2024 Rabbit Hole Computing LLC
     Copyright 2020 Difegue
     Copyright 2015 Rob Braun
     Copyright 2011 Jun WAKO <wakojun@gmail.com>
@@ -15,6 +15,9 @@ Other third party components (such as TinyUSB and Simple-Circular-Queue)
 are copyright their respective authors. 
 
 -----------------------------------------------------
+
+QuokKM5 is a reuse of the QuokkADB and adbuino code for Rabbit Hole Computing LLC
+and bridges USB to no-ADB 5 pin NeXT input interface.
 
 QuokkADB is a re-branding of the adbuino code for Rabbit Hole Computing, 
 LLC and adds support for the RP2040 microcontroller.
