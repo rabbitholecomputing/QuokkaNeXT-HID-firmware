@@ -1,10 +1,11 @@
 #!/bin/bash
 
 # ZuluSCSI™ - Copyright (c) 2022 Rabbit Hole Computing™
-# QuokkADB - Copyright (c) 2023 Rabbit Hole Computing™
+# QuokkADB  - Copyright (c) 2023 Rabbit Hole Computing™
+# QuokKM5   - Copyright (c) 2024 Rabbit Hole Computing™
 #
 # This file was orignally from the ZuluSCSI™ firmware project and
-# adapted for use with the QuokkADB project.
+# adapted for use with the QuokKM5 project.
 #
 # This file is licensed under the GPL version 3 or any later version. 
 #
@@ -31,12 +32,13 @@ mkdir -p distrib
 
 DATE=$(date +%Y-%m-%d)
 COMMIT=$(git describe --always)
-VERSION=$(gcc -E utils/version-extractor.cpp -Ilib/adbuino/include/ | grep  "version\[\]" | cut -d '"' -f2)
-SUFFIX=$(gcc -E utils/version-extractor.cpp -Ilib/adbuino/include/ | grep  "suffix\[\]" | cut -d '"' -f2)
+VERSION=$(gcc -E utils/version-extractor.cpp -Ilib/QuokKM5/include/ | grep  "version\[\]" | cut -d '"' -f2)
+SUFFIX=$(gcc -E utils/version-extractor.cpp -Ilib/QuokKM5/include/ | grep  "suffix\[\]" | cut -d '"' -f2)
 
-for file in $(ls .pio/build/adbuino/*.bin .pio/build/adbuino/*.elf .pio/build/adbuino/*.hex)
+for file in $(ls .pio/build/quokkm5/*.bin .pio/build/quokkm5/*.elf .pio/build/quokkm5/*.uf2)
 do
-    NEWNAME=$(echo $file | sed 's|.pio/build/adbuino/\(.*\)\.\(.*\)|ADBuino-\1-v'$VERSION'-'$SUFFIX'_'$DATE'_'$COMMIT'.\2|')
+    NEWNAME=$(echo $file | sed 's|.pio/build/quokkm5/\(.*\)\.\(.*\)|QuokKM5-\1-v'$VERSION'-'$SUFFIX'_'$DATE'_'$COMMIT'.\2|')
     echo $file to distrib/$NEWNAME
     cp $file distrib/$NEWNAME
 done
+

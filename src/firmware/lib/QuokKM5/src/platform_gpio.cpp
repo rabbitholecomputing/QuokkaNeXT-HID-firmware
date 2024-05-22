@@ -1,5 +1,11 @@
 //---------------------------------------------------------------------------
 //
+//	QuokKM5 - USB Keyboard and Mouse to 5 pin NeXT Keyboard and Mouse input 
+//
+//     Copyright (C) 2024 Rabbit Hole Computing LLC
+//
+//  This file is part of QuokKM5 and is derived from projects below.
+//
 //	QuokkADB ADB keyboard and mouse adapter
 //
 //     Copyright (C) 2022 Rabbit Hole Computing LLC
@@ -25,35 +31,32 @@
 //----------------------------------------------------------------------------
 
 
-#ifndef _BOARDS_QUOKKADB_H
-#define _BOARDS_QUOKKADB_H
-
-// For board detection
-#define QUOKKADB_BOARD
-
-// --- UART ---
-
-#define PICO_DEFAULT_UART 0
-#define PICO_DEFAULT_UART_TX_PIN 16
+#include "platform_gpio.h"
+#include <hardware/gpio.h>
+#include <pico/stdio_uart.h>
 
 
-// --- FLASH ---
+void next_gpio_init(void) {
+    gpio_init(NEXT_OUT_GPIO);
+    gpio_set_function(NEXT_OUT_GPIO, GPIO_FUNC_SIO);
+    gpio_set_dir(NEXT_OUT_GPIO, GPIO_OUT);
+    gpio_put(NEXT_OUT_GPIO, true);
 
-#define PICO_BOOT_STAGE2_CHOOSE_W25Q080 1
+    gpio_init(NEXT_IN_GPIO);
+    gpio_set_dir(NEXT_IN_GPIO, GPIO_IN);
 
-#ifndef PICO_FLASH_SPI_CLKDIV
-#define PICO_FLASH_SPI_CLKDIV 4
-#endif
+}
 
-#ifndef PICO_FLASH_SIZE_BYTES
-#define PICO_FLASH_SIZE_BYTES (2 * 1024 * 1024)
-#endif
+void led_gpio_init(void) {
+    gpio_init(LED_GPIO);
+    gpio_set_function(LED_GPIO, GPIO_FUNC_SIO);
+    gpio_set_dir(LED_GPIO, GPIO_OUT);
+    LED_OFF();
+}
 
-// Drive high to force power supply into PWM mode (lower ripple on 3V3 at light loads)
-#define PICO_SMPS_MODE_PIN 23
+void uart_gpio_init(void) {
 
-#ifndef PICO_RP2040_B0_SUPPORTED
-#define PICO_RP2040_B0_SUPPORTED 0
-#endif
+    uart_init(UART_PORT, UART_TX_BAUD);
+    gpio_set_function(UART_TX_GPIO, GPIO_FUNC_UART);
+}
 
-#endif

@@ -24,8 +24,8 @@
 //
 //----------------------------------------------------------------------------
 #include "blink.h"
-#include "quokkadb_gpio.h"
-#include "adb_platform.h"
+#include "platform_gpio.h"
+#include "interface_platform.h"
 
 BlinkLed blink_led;
 

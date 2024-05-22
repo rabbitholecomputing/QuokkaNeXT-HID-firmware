@@ -26,14 +26,14 @@
 
 #include "tusb.h"
 #include <class/hid/hid_host.h>
-#include "quokkadb_gpio.h"
-#include "adbregisters.h"
+#include "platform_gpio.h"
+#include "next_5pin_registers.h"
 #include "usbkbdparser.h"
 #include "usb_hid_keys.h"
 #include "platformkbdparser.h"
 #include "platformmouseparser.h"
 #include "usbmouseparser.h"
-#include "adbkbdparser.h"
+#include "next_5pin_kbdparser.h"
 #include "blink.h"
 
 #define kModCmd 1

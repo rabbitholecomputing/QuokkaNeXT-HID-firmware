@@ -26,11 +26,32 @@
 #pragma once
 
 #include <stdint.h>
-#include <adb_platform.h>
+#include <interface_platform.h>
 
-#ifndef ADB_ATTENTION_WAIT
-#define ADB_ATTENTION_WAIT 100000
+#ifndef N5P_ATTENTION_WAIT
+#define N5P_ATTENTION_WAIT 1800
 #endif
+
+#define N5P_WAIT_TOLERANCE 2
+// Wait time is 52.747us * number of bits rounded to nearest integer
+#define N5P_1BIT_WAIT   53
+#define N5P_2BIT_WAIT  105
+#define N5P_3BIT_WAIT  158
+#define N5P_4BIT_WAIT  211
+#define N5P_5BIT_WAIT  264
+#define N5P_6BIT_WAIT  316
+#define N5P_7BIT_WAIT  369
+#define N5P_8BIT_WAIT  422
+#define N5P_9BIT_WAIT  475
+#define N5P_10BIT_WAIT 527
+
+
+#define N5P_MAX_BIT_WAIT (54)
+#define N5P_MIN_BIT_WAIT (50)
+#define N5P_MIN_FIRST_BYTE_LOW_WAIT (N5P_MIN_BIT_WAIT * 9)
+#define N5P_MAX_FIRST_BYTE_LOW_WAIT (N5P_MAX_BIT_WAIT * 9)
+#define N5P_MIN_SECOND_BYTE_LOW_WAIT (N5P_MAX_BIT_WAIT * 10)
+#define N5P_MAX_SECOND_BYTE_LOW_WAIT (N5P_MAX_BIT_WAIT * 10)
 
 #define KBD_DEFAULT_ADDR 0x02
 #define KBD_DEFAULT_HANDLER_ID 0x02
@@ -41,16 +62,32 @@
 extern volatile bool adb_collision;
 extern volatile bool collision_detection;
 
-class AdbInterface : public AdbInterfacePlatform {
+enum class N5PCommand 
+{
+  None,
+  Reset,
+  MouseQuery,
+  KeyboardQuery,
+  BothLEDsOn,
+  LeftLEDOn,
+  RightLEDOn,
+  BothLEDsOff,
+  ErrorFindingCommand,
+  ErrorOnMouseOrReset,
+  ErrorOnKeyboard,
+  ErrorOnLEDs
+};
+
+class N5PInterface : public InterfacePlatform {
   public:
+
+
     //void ReadAdbCommand();
-    int16_t ReceiveCommand(uint8_t srq);
-    void ProcessCommand(int16_t cmd);
+    N5PCommand ReceiveCommand();
+    void ProcessCommand(N5PCommand cmd);
     void Reset(void);
 
   protected:
-    uint16_t GetAdbRegister3Keyboard();
-    uint16_t GetAdbRegister3Mouse();
     bool Send16bitRegister(uint16_t reg16);
     // Had collision detection
     bool SendTalkRegister3(uint16_t reg16, uint32_t delay = 0);
@@ -60,6 +97,9 @@ class AdbInterface : public AdbInterfacePlatform {
     void ResetCollision(void);
 
   private:
+    bool in_range(uint32_t value, uint32_t target, uint32_t error);
+    bool lo_verify(uint32_t target, uint32_t error);
+    bool hi_verify(uint32_t target, uint32_t error);
     bool place_stop_bit(void);
     bool place_bit0(void);
     bool place_bit1(void);
@@ -70,7 +110,7 @@ class AdbInterface : public AdbInterfacePlatform {
 };
 
 
-inline bool AdbInterface::Send16bitRegister(uint16_t reg16)
+inline bool N5PInterface::Send16bitRegister(uint16_t reg16)
 {
   // stop to start time / interframe delay - min time 140us, max time 260. 
   // adding randomness as suggested by Apple Guide the Mac. family  Hardware 2nd edition
@@ -89,7 +129,7 @@ inline bool AdbInterface::Send16bitRegister(uint16_t reg16)
   return true;
 }
 
-inline bool AdbInterface::SendTalkRegister3(uint16_t reg16, uint32_t delay)
+inline bool N5PInterface::SendTalkRegister3(uint16_t reg16, uint32_t delay)
 {
     // stop to start time / interframe delay - min time 140us, max time 260. 
     // adding randomness as suggested by Apple Guide the Mac. family  Hardware 2nd edition
@@ -117,7 +157,7 @@ inline bool AdbInterface::SendTalkRegister3(uint16_t reg16, uint32_t delay)
 }
 
 
-inline int32_t AdbInterface::Receive16bitRegister(void)
+inline int32_t N5PInterface::Receive16bitRegister(void)
 {        
   int32_t data = 0;
   uint16_t hi_time;
@@ -181,13 +221,13 @@ out:
 }
 
 
-inline void AdbInterface::DetectCollision(void)
+inline void N5PInterface::DetectCollision(void)
 {
   collision_detection = true;
   adb_irq_init();
 }
 
-inline void AdbInterface::ResetCollision(void)
+inline void N5PInterface::ResetCollision(void)
 {
   adb_irq_disable();
   collision_detection = false;

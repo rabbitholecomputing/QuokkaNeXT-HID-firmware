@@ -1,40 +1,42 @@
-name: Build ADBuino firmware
+name: Build QuokKM5 firmware
 
-on: 
+on:
   push:
   workflow_dispatch:
 
 jobs:
-  build_adbuino:
+  build_quokkadb:
     name: Build firmware on Ubuntu 22.04
     runs-on: ubuntu-22.04
-    
+
     steps:
       - name: Check out code from GitHub
         uses: actions/checkout@v4
         with:
-          path: adbuino
+          path: quokkm5
           fetch-depth: "0"
+
       - name: Install packages
         run: |
             sudo apt-get update      
             sudo apt-get install -y python3-pip
+
       - name: Install platformio
         run: |
           sudo pip install platformio
-      
+
       - name: Build firmware
         run: |
-          cd adbuino/src/firmware
-          pio run -ve adbuino
-    
+          cd quokkm5/src/firmware
+          pio run -ve quokkm5
+
       - name: Rename firmware files
         run: |
-          cd adbuino/src/firmware
-          utils/rename_adbuino_binaries.sh
+          cd quokkm5/src/firmware
+          utils/rename_quokkm5_binaries.sh
 
       - name: Upload binaries into build artifacts
         uses: actions/upload-artifact@v4
-        with:
-          path: adbuino/src/firmware/distrib/*
-          name: ADBuino binaries
+        with: 
+          path: quokkm5/src/firmware/distrib/*
+          name: QuokKM5 binaries

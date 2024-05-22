@@ -39,10 +39,10 @@
 #include "tusb.h"
 #include "host/usbh.h"
 #include "platform_logmsg.h"
-#include "adb.h"
-#include "quokkadb_gpio.h"
-#include "adbkbdparser.h"
-#include "adbmouseparser.h"
+#include "next_5pin.h"
+#include "platform_gpio.h"
+#include "next_5pin_kbdparser.h"
+#include "next_5pin_mouseparser.h"
 #include "flashsettings.h"
 #include "platform_config.h"
 #include "blink.h"
@@ -68,7 +68,7 @@ bool usb_mouse_reset = false;
 bool usb_kbd_reset = false;
 bool global_debug = false;
 
-AdbInterface adb;
+N5PInterface n5p;
 
 ADBKbdRptParser KeyboardPrs;
 ADBMouseRptParser MousePrs(KeyboardPrs);
@@ -98,7 +98,7 @@ void setup()
 /*------------ Core0 main loop ------------*/
 void loop()
 {
-  int16_t cmd = 0;
+  N5PCommand cmd = N5PCommand::None;
 
   if (!kbdpending)
   {
@@ -121,16 +121,16 @@ void loop()
 
   blink_led.led_off();
 
-  cmd = adb.ReceiveCommand(mousesrq | kbdsrq);
+  cmd =  n5p.ReceiveCommand();
   if(setting_storage.settings()->led_on)
   {
     blink_led.led_on();
   }  
-  adb.ProcessCommand(cmd);
+  n5p.ProcessCommand(cmd);
 
   if (adb_reset)
   {
-    adb.Reset();
+    n5p.Reset();
     adb_reset = false;
     usb_reset = true;
     if (global_debug)

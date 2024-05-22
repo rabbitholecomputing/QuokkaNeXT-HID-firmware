@@ -26,7 +26,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "quokkadb_gpio.h"
+#include "platform_gpio.h"
 #include <hardware/timer.h>
 #include <pico/time.h>
 
@@ -37,7 +37,7 @@ inline uint32_t millis()
   return to_ms_since_boot(get_absolute_time());
 }
 
-class AdbInterfacePlatform 
+class InterfacePlatform 
 {
   protected:
 
@@ -63,33 +63,33 @@ class AdbInterfacePlatform
 
 
 
-inline void AdbInterfacePlatform::data_lo()
+inline void InterfacePlatform::data_lo()
 {
     ADB_OUT_LOW();
 }
 
-inline void AdbInterfacePlatform::data_hi()
+inline void InterfacePlatform::data_hi()
 {
     ADB_OUT_HIGH();
 }
-inline uint8_t AdbInterfacePlatform::data_in()
+inline uint8_t InterfacePlatform::data_in()
 {
     return ADB_IN_GET();
 }
 
-inline void AdbInterfacePlatform::adb_pin_out()
+inline void InterfacePlatform::adb_pin_out()
 {
 }
-inline void AdbInterfacePlatform::adb_pin_in()
+inline void InterfacePlatform::adb_pin_in()
 {
 }
 
-inline void AdbInterfacePlatform::wait_low_indefinitely()
+inline void InterfacePlatform::wait_low_indefinitely()
 {
   while(data_in());
 }
 
-inline uint16_t AdbInterfacePlatform::wait_data_lo(uint32_t us)
+inline uint16_t InterfacePlatform::wait_data_lo(uint32_t us)
 {
   // use 64bit time to prevent possible wrapping
   uint64_t start = time_us_64();
@@ -106,7 +106,7 @@ inline uint16_t AdbInterfacePlatform::wait_data_lo(uint32_t us)
   return us >= diff ? diff : 0;
 }
 
-inline uint16_t AdbInterfacePlatform::wait_data_hi(uint32_t us)
+inline uint16_t InterfacePlatform::wait_data_hi(uint32_t us)
 {
   uint64_t start = time_us_64();
   uint64_t time;

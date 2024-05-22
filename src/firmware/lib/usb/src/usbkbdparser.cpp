@@ -24,7 +24,7 @@
 #include <Arduino.h>
 #include "usbkbdparser.h"
 #include "bithacks.h"
-#include "adbregisters.h"
+#include "next_5pin_registers.h"
 #include "usb_hid_keys.h"
 
 // #ifdef QUOKKADB

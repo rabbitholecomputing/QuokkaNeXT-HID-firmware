@@ -22,8 +22,8 @@
 //  with the file. If not, see <https://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------------
-#include "adb_platform.h"
-#include "adbkbdparser.h"
+#include "interface_platform.h"
+#include "next_5pin_kbdparser.h"
 #include "hardware/gpio.h"
 #include <time.h>
 
@@ -31,7 +31,7 @@ extern volatile bool adb_collision;
 extern volatile bool collision_detection;
 extern ADBKbdRptParser KeyboardPrs;
 
-bool AdbInterfacePlatform::adb_delay_with_detect_us(uint32_t delay) 
+bool InterfacePlatform::adb_delay_with_detect_us(uint32_t delay) 
 {
   uint64_t start = time_us_64();
   uint64_t time;
@@ -48,7 +48,7 @@ bool AdbInterfacePlatform::adb_delay_with_detect_us(uint32_t delay)
   return collision_free;
 }
 
-bool AdbInterfacePlatform::adb_delay_us(uint32_t delay) 
+bool InterfacePlatform::adb_delay_us(uint32_t delay) 
 {
   uint64_t start = time_us_64();
   uint64_t time;
@@ -71,17 +71,17 @@ static void adb_in_irq_callback(uint gpio, uint32_t event_mask) {
     } 
 }
 
-void AdbInterfacePlatform::adb_irq_init(void) {
+void InterfacePlatform::adb_irq_init(void) {
   gpio_acknowledge_irq(ADB_IN_GPIO, GPIO_IRQ_EDGE_FALL);
   gpio_set_irq_enabled_with_callback(ADB_IN_GPIO, GPIO_IRQ_EDGE_FALL, true, &adb_in_irq_callback);
 }
 
-void AdbInterfacePlatform::adb_irq_disable(void) {
+void InterfacePlatform::adb_irq_disable(void) {
   gpio_set_irq_enabled_with_callback(ADB_IN_GPIO, GPIO_IRQ_EDGE_FALL, false, &adb_in_irq_callback); 
   gpio_acknowledge_irq(ADB_IN_GPIO, GPIO_IRQ_EDGE_FALL);
 }
 
-void AdbInterfacePlatform::adb_set_leds(uint16_t reg2) 
+void InterfacePlatform::adb_set_leds(uint16_t reg2) 
 {
   bool numlock = !(reg2 & 0x1);
   bool capslock = !(reg2 & 0x2);

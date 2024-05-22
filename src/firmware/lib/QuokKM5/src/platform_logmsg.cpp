@@ -27,7 +27,7 @@
 // Logging system based on Arduino Serial library
 #include <Arduino.h>
 #include "platform_logmsg.h"
-#include "quokkadb_gpio.h"
+#include "platform_gpio.h"
 #include "log_cache.h"
 
 platform::PLogmsg Logmsg;

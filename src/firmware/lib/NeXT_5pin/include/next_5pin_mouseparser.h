@@ -21,7 +21,7 @@
 //  with this file. If not, see <https://www.gnu.org/licenses/>.
 //----------------------------------------------------------------------------
 #pragma once
-#include "adbkbdparser.h"
+#include "next_5pin_kbdparser.h"
 #include "usbmouseparser.h"
 
 class ADBMouseRptParser : public MouseRptParser
