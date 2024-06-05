@@ -39,6 +39,8 @@ inline uint32_t millis()
 
 class InterfacePlatform 
 {
+  public:
+      void wait_for_reset_signal();
   protected:
 
     void data_lo();
@@ -47,7 +49,7 @@ class InterfacePlatform
     void adb_pin_in();
 
     uint8_t data_in();
-    void wait_low_indefinitely();
+
     uint16_t wait_data_lo(uint32_t us);
     uint16_t wait_data_hi(uint32_t us);
     bool adb_delay_us(uint32_t delay);
@@ -84,10 +86,7 @@ inline void InterfacePlatform::adb_pin_in()
 {
 }
 
-inline void InterfacePlatform::wait_low_indefinitely()
-{
-  while(data_in());
-}
+
 
 inline uint16_t InterfacePlatform::wait_data_lo(uint32_t us)
 {

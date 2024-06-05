@@ -50,7 +50,9 @@ uint8_t kbdsrq = 0;
 uint8_t mousesrq = 0;
 uint16_t modifierkeys = 0xFFFF;
 uint64_t kbskiptimer = 0;
-bool adb_reset = false;
+
+bool n5p_reset = false;
+
 bool mouse_flush = false;
 bool kbd_flush = false;
 volatile bool adb_collision = false; 
@@ -160,7 +162,7 @@ N5PCommand N5PInterface::ReceiveCommand()
   if (g_global_reset)
   {
     g_global_reset = false;
-    wait_low_indefinitely();
+    wait_for_reset_signal();
   }
   else
   {
@@ -328,7 +330,7 @@ void N5PInterface::ProcessCommand(N5PCommand cmd)
 {
   if (cmd == N5PCommand::Reset)
   {
-    adb_reset = true;
+    n5p_reset = true;
     g_global_reset = true;
     if (global_debug)
     {
@@ -341,15 +343,10 @@ void N5PInterface::ProcessCommand(N5PCommand cmd)
   {
     if (mousepending)
     {
-      if (!Send16bitRegister(MousePrs.GetAdbRegister0()))
-      { 
-        if (global_debug)
-        {
-          Logmsg.println("MOUSE: Talk failed to send register 0");
-        }
-      }
       mousepending = 0;
+      // collect mouse input and output
     }
+     
     return;
   }
   
@@ -357,10 +354,8 @@ void N5PInterface::ProcessCommand(N5PCommand cmd)
   {
       if (kbdpending)
       {
-        if (Send16bitRegister(kbdreg0))
-        {
-          kbdpending = 0;
-        }
+        // send latest keyboard key
+        // or no output
       }
       return;
   }

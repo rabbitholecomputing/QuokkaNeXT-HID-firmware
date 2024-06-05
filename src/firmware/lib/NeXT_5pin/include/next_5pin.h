@@ -27,12 +27,16 @@
 
 #include <stdint.h>
 #include <interface_platform.h>
+#include <hardware/irq.h>
+
 
 #ifndef N5P_ATTENTION_WAIT
 #define N5P_ATTENTION_WAIT 1800
 #endif
 
-#define N5P_WAIT_TOLERANCE 2
+#define N5P_WAIT_TOLERANCE 4
+#define N5P_WAIT_TOLERANCE_MIN 10
+#define N5P_WAIT_TOLERANCE_MAX 3
 // Wait time is 52.747us * number of bits rounded to nearest integer
 #define N5P_1BIT_WAIT   53
 #define N5P_2BIT_WAIT  105

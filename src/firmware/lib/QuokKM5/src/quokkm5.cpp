@@ -60,7 +60,7 @@ extern uint8_t kbdsrq;
 extern uint8_t mousesrq;
 extern uint32_t kbskiptimer;
 extern uint16_t modifierkeys;
-extern bool adb_reset;
+extern bool n5p_reset;
 extern bool mouse_flush;
 extern bool kbd_flush;
 bool usb_reset = false;
@@ -78,13 +78,11 @@ FlashSettings setting_storage;
 void initVariant() 
 { 
   led_gpio_init();
-
 }
 
 /*------------ Core0 setup ------------*/
 void setup()
 {
-  set_sys_clock_khz(125000, true);
   blink_led.blink(1);
   adb_gpio_init();
   setting_storage.init();
@@ -92,22 +90,26 @@ void setup()
   log_init();
   Serial1.begin();
   Logmsg.println(PLATFORM_FW_VER_STRING);
-  srand(time_us_32());
 }
 
 /*------------ Core0 main loop ------------*/
 void loop()
 {
+  static bool first_loop = true;
+  if (first_loop)
+  {
+    first_loop = false;
+    n5p.wait_for_reset_signal();
+  }
+
   N5PCommand cmd = N5PCommand::None;
 
   if (!kbdpending)
   {
     if (KeyboardPrs.PendingKeyboardEvent())
     {
-      kbdreg0 = KeyboardPrs.GetAdbRegister0();
-      kbdreg2 = KeyboardPrs.GetAdbRegister2();
+     // process keyboard events
       kbdpending = 1;
-
     }
   }
   
@@ -115,23 +117,19 @@ void loop()
   {
     if (MousePrs.MouseReady())
     {
+      //process mouse events
       mousepending = 1;
     }
   }
 
-  blink_led.led_off();
-
   cmd =  n5p.ReceiveCommand();
-  if(setting_storage.settings()->led_on)
-  {
-    blink_led.led_on();
-  }  
+
   n5p.ProcessCommand(cmd);
 
-  if (adb_reset)
+  if (n5p_reset)
   {
     n5p.Reset();
-    adb_reset = false;
+    n5p_reset = false;
     usb_reset = true;
     if (global_debug)
     {
@@ -171,8 +169,9 @@ void loop1()
   
   KeyboardPrs.ChangeUSBKeyboardLEDs();
 
-  if (adb_reset)
+  if (n5p_reset)
   {
+    KeyboardPrs.Reset();
     MousePrs.Reset();
   }
 
