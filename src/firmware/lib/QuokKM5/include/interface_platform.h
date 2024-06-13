@@ -29,18 +29,15 @@
 #include "platform_gpio.h"
 #include <hardware/timer.h>
 #include <pico/time.h>
+#include "next_io.h"
 
 extern bool volatile adb_collision;
-
-inline uint32_t millis()
-{
-  return to_ms_since_boot(get_absolute_time());
-}
 
 class InterfacePlatform 
 {
   public:
-      void wait_for_reset_signal();
+      virtual void init();
+      virtual void wait_for_reset_signal();
   protected:
 
     void data_lo();
@@ -60,6 +57,8 @@ class InterfacePlatform
     void adb_irq_init(void);
     void adb_irq_disable(void);
     void adb_set_leds(uint16_t reg2);
+
+    NeXTIO m_io;
 
 };
 

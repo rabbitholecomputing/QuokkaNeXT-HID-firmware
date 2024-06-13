@@ -28,113 +28,122 @@
 #include <time.h>
 #include "next_5pin.h"
 #include "blink.h"
+
 extern volatile bool adb_collision;
 extern volatile bool collision_detection;
 extern ADBKbdRptParser KeyboardPrs;
 
-// Check timings for a period in the reset signal to keyboard form host
-static bool within_reset_period(uint32_t begin, uint32_t end, uint32_t period)
+void InterfacePlatform::init()
 {
-  const size_t NUM_OF_PERIODS = 5;
-  const uint32_t period_min[NUM_OF_PERIODS] = {N5P_1BIT_WAIT - N5P_WAIT_TOLERANCE_MIN,
-                                                N5P_4BIT_WAIT - N5P_WAIT_TOLERANCE_MIN,
-                                                N5P_1BIT_WAIT - N5P_WAIT_TOLERANCE_MIN,
-                                                N5P_6BIT_WAIT - N5P_WAIT_TOLERANCE_MIN,
-                                                N5P_10BIT_WAIT - N5P_WAIT_TOLERANCE_MIN
-                                              };
-  const uint32_t period_max[NUM_OF_PERIODS] = {N5P_1BIT_WAIT + N5P_WAIT_TOLERANCE_MAX,
-                                               N5P_4BIT_WAIT + N5P_WAIT_TOLERANCE_MAX,
-                                               N5P_1BIT_WAIT + N5P_WAIT_TOLERANCE_MAX,
-                                               N5P_6BIT_WAIT + N5P_WAIT_TOLERANCE_MAX,
-                                               N5P_10BIT_WAIT + N5P_WAIT_TOLERANCE_MAX
-                                              };
-  uint32_t difference = (uint32_t)(end - begin);
-  if( difference <= period_max[period] && difference >= period_min[period] )
-  {
-    return true;
-  }
-  return false;
+  m_io.init(NEXT_IN_GPIO, NEXT_IN_UART_CLK_DIV, NEXT_OUT_GPIO, NEXT_OUT_BIT_CLK_DIV);
 }
+
+// Check timings for a period in the reset signal to keyboard form host
+// static bool within_reset_period(uint32_t begin, uint32_t end, uint32_t period)
+// {
+//   const size_t NUM_OF_PERIODS = 5;
+//   const uint32_t period_min[NUM_OF_PERIODS] = {N5P_1BIT_WAIT - N5P_WAIT_TOLERANCE_MIN,
+//                                                 N5P_4BIT_WAIT - N5P_WAIT_TOLERANCE_MIN,
+//                                                 N5P_1BIT_WAIT - N5P_WAIT_TOLERANCE_MIN,
+//                                                 N5P_6BIT_WAIT - N5P_WAIT_TOLERANCE_MIN,
+//                                                 N5P_10BIT_WAIT - N5P_WAIT_TOLERANCE_MIN
+//                                               };
+//   const uint32_t period_max[NUM_OF_PERIODS] = {N5P_1BIT_WAIT + N5P_WAIT_TOLERANCE_MAX,
+//                                                N5P_4BIT_WAIT + N5P_WAIT_TOLERANCE_MAX,
+//                                                N5P_1BIT_WAIT + N5P_WAIT_TOLERANCE_MAX,
+//                                                N5P_6BIT_WAIT + N5P_WAIT_TOLERANCE_MAX,
+//                                                N5P_10BIT_WAIT + N5P_WAIT_TOLERANCE_MAX
+//                                               };
+//   uint32_t difference = (uint32_t)(end - begin);
+//   if( difference <= period_max[period] && difference >= period_min[period] )
+//   {
+//     return true;
+//   }
+//   return false;
+// }
 
 void InterfacePlatform::wait_for_reset_signal()
 {
-  uint8_t period = 0;
-  if (NEXT_IN_GET())
-    while (NEXT_IN_GET());
-  uint32_t start = time_us_32();
-  uint32_t end = 0;
-  while (true)
-  {
-period0:
-    period = 0;
-    while (!NEXT_IN_GET());
-    end = time_us_32();
-    if (!within_reset_period(start, end, period))
-    {
-        while(NEXT_IN_GET());
-        start = time_us_32();
-        goto period0;
-    }
-    blink_led.led_on(true);
-period1:
-    start = end;
-    period = 1;
-    while (NEXT_IN_GET());
-    end = time_us_32();
-    if (!within_reset_period(start, end, period))
-    {
-      start = end;
-      goto period0;
-    } 
-period2:
-    start = end;
-    period = 2;
-    while(!NEXT_IN_GET())
-    end = time_us_32();
-
-    if (!within_reset_period(start, end, period))
-    {
-          while(NEXT_IN_GET());
-          start = time_us_32();
-          goto period0;
-    }
-//period3:
-    start = end;
-    period = 3;
-    while(NEXT_IN_GET());
-    end = time_us_32();
-    if(within_reset_period(start, end, 1))
-    {
-      goto period2;
-    }
-    if (!within_reset_period(start, end, period))
-    {
-      start = end;
-      goto period0;
-    }
-// period4:
-    start = end;
-    period = 4;
-    while(!NEXT_IN_GET())
-    end = time_us_32();
-    
-    if(within_reset_period(start, end, 0))
-    {
-      goto period1;
-    }
-    if (within_reset_period(start, end, period))
-    {
-      // found reset sequence
-      blink_led.led_off(true); 
-    }
-    else
-    {
-      while(NEXT_IN_GET());
-      start = time_us_32();
-      goto period0;
-    }
-  }
+  m_io.waitForReset();
 }
+// {
+//   uint8_t period = 0;
+//   if (NEXT_IN_GET())
+//     while (NEXT_IN_GET());
+//   uint32_t start = time_us_32();
+//   uint32_t end = 0;
+//   while (true)
+//   {
+// period0:
+//     period = 0;
+//     while (!NEXT_IN_GET());
+//     end = time_us_32();
+//     if (!within_reset_period(start, end, period))
+//     {
+//         while(NEXT_IN_GET());
+//         start = time_us_32();
+//         goto period0;
+//     }
+//     blink_led.led_on(true);
+// period1:
+//     start = end;
+//     period = 1;
+//     while (NEXT_IN_GET());
+//     end = time_us_32();
+//     if (!within_reset_period(start, end, period))
+//     {
+//       start = end;
+//       goto period0;
+//     } 
+// period2:
+//     start = end;
+//     period = 2;
+//     while(!NEXT_IN_GET())
+//     end = time_us_32();
+
+//     if (!within_reset_period(start, end, period))
+//     {
+//           while(NEXT_IN_GET());
+//           start = time_us_32();
+//           goto period0;
+//     }
+// //period3:
+//     start = end;
+//     period = 3;
+//     while(NEXT_IN_GET());
+//     end = time_us_32();
+//     if(within_reset_period(start, end, 1))
+//     {
+//       goto period2;
+//     }
+//     if (!within_reset_period(start, end, period))
+//     {
+//       start = end;
+//       goto period0;
+//     }
+// // period4:
+//     start = end;
+//     period = 4;
+//     while(!NEXT_IN_GET())
+//     end = time_us_32();
+    
+//     if(within_reset_period(start, end, 0))
+//     {
+//       goto period1;
+//     }
+//     if (within_reset_period(start, end, period))
+//     {
+//       // found reset sequence
+//       blink_led.led_off(true); 
+//     }
+//     else
+//     {
+//       while(NEXT_IN_GET());
+//       start = time_us_32();
+//       goto period0;
+//     }
+//   }
+// }
 
 
 bool InterfacePlatform::adb_delay_with_detect_us(uint32_t delay) 

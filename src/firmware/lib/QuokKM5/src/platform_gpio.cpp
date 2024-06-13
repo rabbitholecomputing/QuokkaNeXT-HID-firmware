@@ -33,7 +33,10 @@
 
 #include "platform_gpio.h"
 #include <hardware/gpio.h>
-#include <pico/stdio_uart.h>
+#include <hardware/uart.h>
+#include <hardware/clocks.h>
+
+NeXTIO g_next_io;
 
 
 void next_gpio_init(void) {
@@ -41,9 +44,6 @@ void next_gpio_init(void) {
     gpio_set_function(NEXT_OUT_GPIO, GPIO_FUNC_SIO);
     gpio_set_dir(NEXT_OUT_GPIO, GPIO_OUT);
     gpio_put(NEXT_OUT_GPIO, true);
-
-    gpio_init(NEXT_IN_GPIO);
-    gpio_set_dir(NEXT_IN_GPIO, GPIO_IN);
 
 }
 
@@ -55,8 +55,12 @@ void led_gpio_init(void) {
 }
 
 void uart_gpio_init(void) {
-
     uart_init(UART_PORT, UART_TX_BAUD);
     gpio_set_function(UART_TX_GPIO, GPIO_FUNC_UART);
+}
+
+void next_io_init(void)
+{
+    g_next_io.init(NEXT_IN_GPIO, NEXT_IN_UART_CLK_DIV, NEXT_OUT_GPIO, NEXT_OUT_BIT_CLK_DIV);
 }
 

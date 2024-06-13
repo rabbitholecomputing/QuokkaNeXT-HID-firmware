@@ -75,7 +75,7 @@ inline void log_raw()
 }
 
 
-extern "C" unsigned long millis();
+extern "C" uint32_t millis();
 
 // Variadic template for printing multiple items
 template<typename T, typename T2, typename... Rest>

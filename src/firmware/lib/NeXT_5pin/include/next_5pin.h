@@ -84,8 +84,6 @@ enum class N5PCommand
 
 class N5PInterface : public InterfacePlatform {
   public:
-
-
     //void ReadAdbCommand();
     N5PCommand ReceiveCommand();
     void ProcessCommand(N5PCommand cmd);

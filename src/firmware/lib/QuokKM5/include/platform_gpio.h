@@ -37,7 +37,9 @@
 #include <hardware/structs/sio.h>
 #include <hardware/gpio.h>
 #include <hardware/uart.h>
+#include "next_io.h"
 
+extern NeXTIO g_next_io;
 
 // Status LED GPIOs
 #define LED_GPIO     18
@@ -46,11 +48,17 @@
 #define LED_SET(x)  (x ? sio_hw->gpio_set = 1 << LED_GPIO : sio_hw->gpio_clr = 1 << LED_GPIO)
 
 // // NeXT non ADB data GPIOs
-#define NEXT_IN_GPIO   1
 #define NEXT_OUT_GPIO  0
 #define NEXT_OUT_HIGH() (gpio_put(NEXT_OUT_GPIO, true)) // sio_hw->gpio_set = 1 << NEXT_OUT_GPIO
 #define NEXT_OUT_LOW()  (gpio_put(NEXT_OUT_GPIO, false)) // sio_hw->gpio_clr = 1 << NEXT_OUT_GPIO
+
+// pio bit clock need to run twice as fast as the output bit clock
+#define NEXT_OUT_BIT_CLK_DIV 7200 / 2
+
+#define NEXT_IN_GPIO   1
 #define NEXT_IN_GET() (gpio_get(NEXT_IN_GPIO))
+#define NEXT_IN_UART_CLK_DIV 900
+
 
 // \todo delete block
 #define ADB_IN_GPIO   1
@@ -65,8 +73,6 @@
 #define UART_PORT       uart0
 
 void next_gpio_init(void);
+void next_io_init(void);
 void uart_gpio_init(void);
 void led_gpio_init(void);
-
-// \todo delete me
-inline void adb_gpio_init(void) {next_gpio_init();}

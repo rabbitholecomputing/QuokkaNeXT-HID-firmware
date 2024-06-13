@@ -69,6 +69,7 @@ extern ADBKbdRptParser KeyboardPrs;
 // set it.
 
 // Stop bit is just bit 0, but this doesn't wait after the signal goes high
+
 inline bool N5PInterface::place_stop_bit(void)
 {
   data_lo();
@@ -140,189 +141,38 @@ inline bool N5PInterface::send_byte_with_detect(uint8_t data)
   return true;
 }
 
-bool N5PInterface::in_range(uint32_t value, uint32_t target, uint32_t error)
-{
-  return (value >= target - error) && (value <= target + error);
-}
-
-bool N5PInterface::lo_verify(uint32_t target, uint32_t error)
-{
-  return in_range(wait_data_hi(target + error), target, error);
-}
-bool N5PInterface::hi_verify(uint32_t target, uint32_t error)
-{
-  return in_range(wait_data_lo(target + error), target, error);
-}
-
 N5PCommand N5PInterface::ReceiveCommand()
 {
-  uint16_t lo, hi;
-
-  // find attention & start bit
-  if (g_global_reset)
+  next_cmd_t cmd;
+  while (true)
   {
-    g_global_reset = false;
-    wait_for_reset_signal();
-  }
-  else
-  {
-    hi = wait_data_lo(N5P_ATTENTION_WAIT); 
-    if (!hi)
+    cmd = m_io.receiveCmd();
+    switch(cmd)
     {
-      if (global_debug)
-      {
-        // \todo reword for QuokKM5
-        Logmsg.println("ALL: Waiting for attention failed, already low");
-        return N5PCommand::ErrorFindingCommand;
-      }
-    }
-  }
-
-  lo = wait_data_hi(N5P_9BIT_WAIT + N5P_WAIT_TOLERANCE);
-
-  if (in_range(lo, N5P_1BIT_WAIT, N5P_WAIT_TOLERANCE))
-  {
-    // handle Mouse query or Reset
-    hi = wait_data_lo(N5P_4BIT_WAIT + N5P_WAIT_TOLERANCE);
-    if (in_range(hi, N5P_1BIT_WAIT, N5P_WAIT_TOLERANCE))
-    {
-      // handle and verify rest of Mouse Query sequence
-      if (lo_verify(N5P_3BIT_WAIT, N5P_WAIT_TOLERANCE )
-          && hi_verify(N5P_1BIT_WAIT, N5P_WAIT_TOLERANCE)
-          && lo_verify(N5P_4BIT_WAIT, N5P_WAIT_TOLERANCE)
-         )
-      {
-        return N5PCommand::MouseQuery;
-      }
-      else
-      {
-        Logmsg.println("Receive Mouse command verification failed");
-        return N5PCommand::ErrorOnMouseOrReset;
-      }
-    }
-    else if (in_range(hi, N5P_4BIT_WAIT, N5P_WAIT_TOLERANCE))
-    {
-      // handle and verify reset
-      if (lo_verify(N5P_1BIT_WAIT, N5P_WAIT_TOLERANCE) 
-          && hi_verify(N5P_6BIT_WAIT, N5P_WAIT_TOLERANCE)
-          && lo_verify(N5P_10BIT_WAIT, N5P_WAIT_TOLERANCE)
-         )
-      {
+      case next_cmd_t::reset :
         return N5PCommand::Reset;
-      }
-      else
-      {
-        Logmsg.println("Receive Reset command verification failed");
-        return N5PCommand::ErrorOnMouseOrReset;
-      }
-    }
-    else
-    {
-      Logmsg.print("Receive Mouse or Reset command error looking for high 5 bits, usec recorded: ");
-      Logmsg.println((int) hi);
-      return N5PCommand::ErrorOnMouseOrReset;
-    }
-  }
-  else if (in_range(lo, N5P_5BIT_WAIT, N5P_WAIT_TOLERANCE))
-  {
-    // Handle and verify Keyboard query
-    if (hi_verify(N5P_1BIT_WAIT, N5P_WAIT_TOLERANCE)
-        && lo_verify(N5P_3BIT_WAIT, N5P_WAIT_TOLERANCE)
-       )
-    {
-      return N5PCommand::KeyboardQuery;
-    }
-    else
-    {
-      Logmsg.println("Receive Keyboard command verification failed");
-      return N5PCommand::ErrorOnKeyboard;
+      case next_cmd_t::query_kb :
+        return N5PCommand::KeyboardQuery;
+      case next_cmd_t::query_ms :
+        return N5PCommand::MouseQuery;
+      case next_cmd_t::set_left_led :
+        Logmsg.println("NeXT Command - Left LED on");
+        return N5PCommand::LeftLEDOn;
+      case next_cmd_t::set_right_led :
+        Logmsg.println("NeXT Command - Right LED on");
+        return N5PCommand::RightLEDOn;
+      case next_cmd_t::set_both_led :
+        Logmsg.println("NeXT Command - Both LED on");
+        return N5PCommand::BothLEDsOn;
+      case next_cmd_t::reset_both_led :
+        Logmsg.println("NeXT Command - Both LED off");
+        return N5PCommand::BothLEDsOff;
+      case next_cmd_t::error :
+        Logmsg.println("Next Command errored");
+        return N5PCommand::ErrorFindingCommand;
     }
   }
-  else if (in_range(lo, N5P_9BIT_WAIT, N5P_WAIT_TOLERANCE)) // first byte with start
-  {
-    // handle LED command
-    hi = wait_data_lo(N5P_3BIT_WAIT + N5P_WAIT_TOLERANCE);
-    if (in_range(hi, N5P_3BIT_WAIT, N5P_WAIT_TOLERANCE))
-    {
-      lo = wait_data_hi(N5P_10BIT_WAIT + N5P_WAIT_TOLERANCE); // 2nd byte with starts and stops
-      if (in_range(lo, N5P_1BIT_WAIT, N5P_WAIT_TOLERANCE))
-      {
-        // handle Left and Both Alpha Lock LEDs On
-        hi = wait_data_lo(N5P_2BIT_WAIT + N5P_WAIT_TOLERANCE);
-        if (in_range(hi, N5P_1BIT_WAIT, N5P_WAIT_TOLERANCE))
-        {
-          // verify LEFT LED ON
-          if (lo_verify(N5P_8BIT_WAIT, N5P_WAIT_TOLERANCE))
-            return N5PCommand::LeftLEDOn;
-          else
-          {
-              Logmsg.println("Receive Left LED On command verification failed");
-              return N5PCommand::ErrorOnLEDs;
-          }
-        }
-        else if (in_range(hi, N5P_2BIT_WAIT, N5P_WAIT_TOLERANCE))
-        {
-          // verify BOTH LEDs ON
-          if (lo_verify(N5P_7BIT_WAIT, N5P_WAIT_TOLERANCE))
-            return N5PCommand::BothLEDsOn;
-          else
-          {
-              Logmsg.println("Receive Both LEDs On command verification failed");
-              return N5PCommand::ErrorOnLEDs;
-          }
-          return N5PCommand::BothLEDsOn;
-        }
-        else
-        {
-          Logmsg.print("Receive L&B LED command error looking for hi two bits, usec recorded: ");
-          Logmsg.println((int) hi);
-          return N5PCommand::ErrorOnLEDs;
-        }
-      }
-      else if (in_range(lo, N5P_2BIT_WAIT, N5P_WAIT_TOLERANCE))
-      {
-        // handle and verify Right LED
-        if  (hi_verify(N5P_1BIT_WAIT, N5P_WAIT_TOLERANCE)
-              && lo_verify(N5P_7BIT_WAIT, N5P_WAIT_TOLERANCE)
-            )
-        {
-          return N5PCommand::RightLEDOn;
-        }
-        else
-        {
-          Logmsg.println("Receive Right LED On command verification failed");
-          return N5PCommand::ErrorOnLEDs;
-        }
-      }
-      else if (in_range(lo, N5P_10BIT_WAIT, N5P_WAIT_TOLERANCE))
-      {
-          // handle LEDs Off
-          return N5PCommand::BothLEDsOff;
-      }
-      else
-      {
-        Logmsg.print("Receive LED command error looking for 2nd byte, usec recorded: ");
-        Logmsg.println((int) lo);
-        return N5PCommand::ErrorOnLEDs;
-      }
- 
-    }
-    else
-    {
-      Logmsg.print("Receive LED command error looking for high 3 bits, usec recorded: ");
-      Logmsg.println((int) hi);
-      return N5PCommand::ErrorOnLEDs;
-    }
-
-  }
-  else
-  {
-      // \todo illegal wait time
-      Logmsg.print("First byte invalid value, wait low time: ");
-      Logmsg.print((int)lo);
-      Logmsg.println("usecs");
-      return N5PCommand::ErrorFindingCommand;
-  }
+  return N5PCommand::ErrorFindingCommand;
 }
 
 

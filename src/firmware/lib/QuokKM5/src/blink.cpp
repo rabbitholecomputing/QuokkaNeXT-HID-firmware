@@ -27,6 +27,8 @@
 #include "platform_gpio.h"
 #include "interface_platform.h"
 
+extern "C" uint32_t millis();
+
 BlinkLed blink_led;
 
 bool BlinkLed::blink(uint8_t times, uint32_t delay_ms)

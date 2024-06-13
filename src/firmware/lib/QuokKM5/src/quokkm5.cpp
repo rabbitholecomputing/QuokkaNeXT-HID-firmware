@@ -84,12 +84,13 @@ void initVariant()
 void setup()
 {
   blink_led.blink(1);
-  adb_gpio_init();
   setting_storage.init();
   uart_gpio_init();
   log_init();
+  next_gpio_init();
   Serial1.begin();
   Logmsg.println(PLATFORM_FW_VER_STRING);
+  n5p.init();
 }
 
 /*------------ Core0 main loop ------------*/
@@ -99,92 +100,94 @@ void loop()
   if (first_loop)
   {
     first_loop = false;
+    NEXT_OUT_LOW();
     n5p.wait_for_reset_signal();
+    NEXT_OUT_HIGH();
   }
 
   N5PCommand cmd = N5PCommand::None;
 
-  if (!kbdpending)
-  {
-    if (KeyboardPrs.PendingKeyboardEvent())
-    {
-     // process keyboard events
-      kbdpending = 1;
-    }
-  }
+  // if (!kbdpending)
+  // {
+  //   if (KeyboardPrs.PendingKeyboardEvent())
+  //   {
+  //    // process keyboard events
+  //     kbdpending = 1;
+  //   }
+  // }
   
-  if (!mousepending)
-  {
-    if (MousePrs.MouseReady())
-    {
-      //process mouse events
-      mousepending = 1;
-    }
-  }
-
+  // if (!mousepending)
+  // {
+  //   if (MousePrs.MouseReady())
+  //   {
+  //     //process mouse events
+  //     mousepending = 1;
+  //   }
+  // }
+  //NEXT_OUT_LOW();
   cmd =  n5p.ReceiveCommand();
+  //NEXT_OUT_HIGH();
+  // n5p.ProcessCommand(cmd);
 
-  n5p.ProcessCommand(cmd);
-
-  if (n5p_reset)
-  {
-    n5p.Reset();
-    n5p_reset = false;
-    usb_reset = true;
-    if (global_debug)
-    {
-      Logmsg.println("ALL: Resetting devices");
-    }
-  } 
+  // if (n5p_reset)
+  // {
+  //   n5p.Reset();
+  //   n5p_reset = false;
+  //   usb_reset = true;
+  //   if (global_debug)
+  //   {
+  //     Logmsg.println("ALL: Resetting devices");
+  //   }
+  // } 
 
   
-  if (mouse_flush)
-  {
-    usb_mouse_reset = true;
-    mouse_flush = false;
-  }
+  // if (mouse_flush)
+  // {
+  //   usb_mouse_reset = true;
+  //   mouse_flush = false;
+  // }
 
-  if (kbd_flush)
-  {
-    usb_kbd_reset = true;
-    kbd_flush = false;
-  }
+  // if (kbd_flush)
+  // {
+  //   usb_kbd_reset = true;
+  //   kbd_flush = false;
+  // }
 }
 
 
-/*------------ Core1 setup ------------*/
+// /*------------ Core1 setup ------------*/
 
 void setup1()
 {
-  tuh_init(0);  
+  // tuh_init(0);  
   sleep_us(500);
 }
 
 /*------------ Core1 main loop ------------*/
 void loop1()
 {
-  tuh_task(); // tinyusb host task
+  // tuh_task(); // tinyusb host task
   blink_led.poll();
   log_poll();
   
-  KeyboardPrs.ChangeUSBKeyboardLEDs();
+  // KeyboardPrs.ChangeUSBKeyboardLEDs();
 
-  if (n5p_reset)
-  {
-    KeyboardPrs.Reset();
-    MousePrs.Reset();
-  }
+  // if (n5p_reset)
+  // {
+  //   KeyboardPrs.Reset();
+  //   MousePrs.Reset();
+  // }
 
-  if (usb_mouse_reset)
-  {
-    MousePrs.Reset();
-    usb_mouse_reset = false;
-  }
+  // if (usb_mouse_reset)
+  // {
+  //   MousePrs.Reset();
+  //   usb_mouse_reset = false;
+  // }
 
-  if (usb_kbd_reset)
-  {
-    KeyboardPrs.Reset();
-    usb_kbd_reset = false;
-  }
+  // if (usb_kbd_reset)
+  // {
+  //   KeyboardPrs.Reset();
+  //   usb_kbd_reset = false;
+  // }
 
 }
