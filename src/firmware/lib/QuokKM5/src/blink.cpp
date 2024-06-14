@@ -25,7 +25,7 @@
 //----------------------------------------------------------------------------
 #include "blink.h"
 #include "platform_gpio.h"
-#include "interface_platform.h"
+#include "platform_interface.h"
 
 extern "C" uint32_t millis();
 

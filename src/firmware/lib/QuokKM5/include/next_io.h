@@ -25,28 +25,30 @@
 //---------------------------------------------------------------------------
 #pragma once
 #include <hardware/pio.h>
-
-enum class next_cmd_t 
-{
-    error,
-    reset,
-    query_kb,
-    query_ms,
-    set_left_led,
-    set_right_led,
-    set_both_led,
-    reset_both_led
-
-};
+#include <next_5pin_commands.h>
 
 class NeXTIO
 {
     public:
+    
         virtual void init(uint8_t rx_pin, uint16_t rx_idiv, uint8_t tx_pin, uint16_t tx_idiv);
-        virtual uint16_t receiveData();
-        virtual next_cmd_t receiveCmd();
+
+        // blocks until a command is read or an error occurred and returns the value
+        virtual N5PCommand receiveCmd();
+
+        // Blocks until detecting a reset command
         virtual void waitForReset();
+
+        // Check if see if the transmitting interface is idle
+        virtual bool readyToTransmit();
+
+        // Transmit two 8 bit packets to the NeXT machine
+        virtual void transmit(uint8_t data[2]);
+
     protected:
-        PIO m_rx_pio;
-        uint8_t m_rx_state_machine;
+        // Receive 9bit packet from NeXT machine
+        virtual uint16_t receiveData();
+
+        PIO m_rx_pio, m_tx_pio;
+        uint8_t m_rx_state_machine, m_tx_state_machine;
 };

@@ -29,7 +29,7 @@
 
 #include "platformmouseparser.h"
 #include <platform_logmsg.h>
-#include <interface_platform.h>
+#include <platform_interface.h>
 #include "tusb.h"
 #include <pico/mutex.h>
 #include "flashsettings.h"

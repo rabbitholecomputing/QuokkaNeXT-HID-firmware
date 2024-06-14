@@ -25,7 +25,7 @@
 
 #include "next_5pin_mouseparser.h"
 #include <platform_logmsg.h>
-#include <interface_platform.h>
+#include <platform_interface.h>
 #include <limits.h>
 extern bool global_debug;
 

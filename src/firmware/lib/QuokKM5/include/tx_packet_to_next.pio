@@ -1,0 +1,77 @@
+; QuokKM5 - Copyright (c) 2024 Rabbit Hole Computing
+; 
+; QuokKM5 firmware is licensed under the GPL version 3 or any later version. 
+; 
+; https://www.gnu.org/licenses/gpl-3.0.html
+; ----
+; This program is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version. 
+; 
+; This program is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details. 
+; 
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+; This state machine outputs two 8 bit data packets with the proper
+; start and stop start bits surrounding the pair of packets in accordance to
+; the NeXT non-adb keyboard and mouse device to host protocol
+
+; The state machine blocks waiting for a value to be pushed on it's
+; out FIFO then immediately starts shifting 16 bits of the 32 bit value right
+; and outputting them to the NeXT soundbox.
+
+; The RP2040 clock speed should be set to 136.5MHz and the state machine
+; clock divider should be set to 7200 / 2. As each transition takes two clock cycles 
+; and 7200 divides the 136.6MHz clock down to the 455KHz based keyboard clock's
+; data rate of around 18.958KHz (455KHz / 24).
+; see: https://journal.spencerwnelson.com/entries/nextkb.html
+
+
+.program tx_packet_to_next
+set pins, 1;
+set pindirs, 1;
+.wrap_target
+    pull block;
+    set y, 1;  -- byte counter for two bytes
+; -- first and second bytes
+start_byte: 
+    set pins, 0; -- send start bit
+    set x,7;   -- bit counter for a single byte
+; -- shift out 8 bits
+write_data:
+    out pins, 1 ;
+    jmp x-- write_data;
+; -- send stop bits
+    set pins, 0 [1];
+    set pins, 1;
+    jmp y-- start_byte;
+    irq set 0; -- transfer finished
+.wrap
+
+% c-sdk {
+static inline void tx_packet_to_next_program_init(PIO pio, uint8_t sm, uint32_t offset, uint8_t pin)
+{
+    pio_gpio_init(pio, pin);
+    pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true);
+    pio_sm_config c = tx_packet_to_next_program_get_default_config(offset);
+    sm_config_set_out_shift(&c, true, false, 0);
+    sm_config_set_set_pins(&c, pin, 1);
+    sm_config_set_out_pins(&c, pin, 1);
+    sm_config_set_clkdiv_int_frac(&c, 7200 / 2, 0);
+    pio_set_irq0_source_enabled(pio, pis_interrupt0, true);
+    pio_sm_init(pio, sm, offset, &c);
+    pio_sm_set_enabled(pio, sm, true);
+}
+
+static inline void tx_packet_to_next_send(PIO pio, uint8_t sm, uint16_t data)
+{
+    io_rw_16 *txfifo = (io_rw_16*) &pio->txf[sm];
+    *txfifo = data;
+}
+
+%}

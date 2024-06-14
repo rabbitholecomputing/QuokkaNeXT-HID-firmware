@@ -39,7 +39,7 @@
 #include "tusb.h"
 #include "host/usbh.h"
 #include "platform_logmsg.h"
-#include "next_5pin.h"
+#include "platform_interface.h"
 #include "platform_gpio.h"
 #include "next_5pin_kbdparser.h"
 #include "next_5pin_mouseparser.h"
@@ -68,7 +68,7 @@ bool usb_mouse_reset = false;
 bool usb_kbd_reset = false;
 bool global_debug = false;
 
-N5PInterface n5p;
+PlatformInterface n5p;
 
 ADBKbdRptParser KeyboardPrs;
 ADBMouseRptParser MousePrs(KeyboardPrs);
@@ -100,9 +100,7 @@ void loop()
   if (first_loop)
   {
     first_loop = false;
-    NEXT_OUT_LOW();
-    n5p.wait_for_reset_signal();
-    NEXT_OUT_HIGH();
+    n5p.blockUntilResetCmd();
   }
 
   N5PCommand cmd = N5PCommand::None;
@@ -127,7 +125,7 @@ void loop()
   //NEXT_OUT_LOW();
   cmd =  n5p.ReceiveCommand();
   //NEXT_OUT_HIGH();
-  // n5p.ProcessCommand(cmd);
+  n5p.ProcessCommand(cmd);
 
   // if (n5p_reset)
   // {
