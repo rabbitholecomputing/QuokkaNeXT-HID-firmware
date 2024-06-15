@@ -48,6 +48,7 @@ public:
     inline uint8_t GetKeycode() { return m_keycode; }
     inline bool IsKeyUp() { return m_key_updown == KeyUp; }
     inline bool IsKeyDown() { return m_key_updown == KeyDown; }
+    
     KeyEvent(uint8_t KeyCode, uint8_t KeyUpDown, uint8_t mod)
     {
         m_key_updown = KeyUpDown;

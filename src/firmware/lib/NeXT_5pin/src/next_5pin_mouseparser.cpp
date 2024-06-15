@@ -29,7 +29,7 @@
 #include <limits.h>
 extern bool global_debug;
 
-ADBMouseRptParser::ADBMouseRptParser(ADBKbdRptParser &kbd_parser)
+ADBMouseRptParser::ADBMouseRptParser(N5PKbdRptParser &kbd_parser)
 {
     m_keyboard = &kbd_parser;
 }
@@ -39,7 +39,7 @@ bool ADBMouseRptParser::MouseReady()
     return MouseChanged();
 }
 
-uint16_t ADBMouseRptParser::GetAdbRegister0()
+uint16_t ADBMouseRptParser::GetKey()
 {
     static bool button_left_last;
     static bool button_right_last;

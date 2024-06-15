@@ -17,12 +17,13 @@
 ; You should have received a copy of the GNU General Public License
 ; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-; This state machine outputs two 8 bit data packets with the proper
-; start and stop start bits surrounding the pair of packets in accordance to
-; the NeXT non-adb keyboard and mouse device to host protocol
+; This state machine outputs two 8+1 bit data packets with the proper
+; start bit. The +1 is a modifiable stop bit.
+; The NeXT non-adb keyboard and mouse device to host protocol changes stop bit
+; level depending on the IDLE and certain key combinations.
 
 ; The state machine blocks waiting for a value to be pushed on it's
-; out FIFO then immediately starts shifting 16 bits of the 32 bit value right
+; out FIFO then immediately starts shifting 18 bits of the 32 bit value right
 ; and outputting them to the NeXT soundbox.
 
 ; The RP2040 clock speed should be set to 136.5MHz and the state machine
@@ -37,17 +38,15 @@ set pins, 1;
 set pindirs, 1;
 .wrap_target
     pull block;
-    set y, 1;  -- byte counter for two bytes
-; -- first and second bytes
+    set y, 1;  -- byte counter for two packets
+; -- first and second 9bit packets
 start_byte: 
     set pins, 0; -- send start bit
-    set x,7;   -- bit counter for a single byte
-; -- shift out 8 bits
+    set x,8;   -- bit counter for a single byte
+; -- shift out 9 bits
 write_data:
     out pins, 1 ;
     jmp x-- write_data;
-; -- send stop bits
-    set pins, 0 [1];
     set pins, 1;
     jmp y-- start_byte;
     irq set 0; -- transfer finished
@@ -68,9 +67,9 @@ static inline void tx_packet_to_next_program_init(PIO pio, uint8_t sm, uint32_t 
     pio_sm_set_enabled(pio, sm, true);
 }
 
-static inline void tx_packet_to_next_send(PIO pio, uint8_t sm, uint16_t data)
+static inline void tx_packet_to_next_send(PIO pio, uint8_t sm, uint32_t data)
 {
-    io_rw_16 *txfifo = (io_rw_16*) &pio->txf[sm];
+    io_rw_32 *txfifo = (io_rw_32*) &pio->txf[sm];
     *txfifo = data;
 }
 

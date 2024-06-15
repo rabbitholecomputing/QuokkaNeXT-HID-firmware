@@ -31,7 +31,7 @@
 
 extern volatile bool adb_collision;
 extern volatile bool collision_detection;
-extern ADBKbdRptParser KeyboardPrs;
+extern N5PKbdRptParser KeyboardPrs;
 
 void PlatformInterface::init()
 {

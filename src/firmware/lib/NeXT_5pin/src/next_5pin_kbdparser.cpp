@@ -24,7 +24,7 @@
 #include <Arduino.h>
 #include "next_5pin_kbdparser.h"
 #include "bithacks.h"
-#include "next_5pin_registers.h"
+#include "next_5pin_keys.h"
 #include "usb_hid_keys.h"
 
 #ifdef QUOKKADB
@@ -35,148 +35,58 @@
 
 extern bool global_debug;
 
-ADBKbdRptParser::ADBKbdRptParser()
+N5PKbdRptParser::N5PKbdRptParser()
 {
 }
 
-ADBKbdRptParser::~ADBKbdRptParser()
+N5PKbdRptParser::~N5PKbdRptParser()
 {
 
 }
 
-uint16_t ADBKbdRptParser::GetAdbRegister0()
+uint8_t* N5PKbdRptParser::GetKey()
 {
+    const uint8_t key = 0, mod = 1;
+    static uint8_t key_packet[2];
+    key_packet[0] = 0;
+    key_packet[1] = 0;
     KeyEvent *event;
-    uint16_t kbdreg0 = 0;
-    uint8_t adb_keycode = 0;
-    bool isKeyUp;
+    uint8_t n5p_keycode = 0;
+    uint8_t n5p_modifiers = 0;
+    bool is_key_up;
     // Pack the first key event
     if (!m_keyboard_events.isEmpty())
     {
         event = m_keyboard_events.dequeue();
-        isKeyUp = event->IsKeyUp();
-        if (isKeyUp)
+        is_key_up = event->IsKeyUp();
+        if (!is_key_up)
         {
-            B_SET(kbdreg0, ADB_REG_0_KEY_1_STATUS_BIT);
+            n5p_keycode = 0x80;
         }
-        adb_keycode = usb_keycode_to_adb_code(event->GetKeycode());
-        kbdreg0 |= (adb_keycode << ADB_REG_0_KEY_1_KEY_CODE);
+        n5p_keycode |= usb_keycode_to_n5p_code(event->GetKeycode());
         delete(event);
     }
     else
     {
-        kbdreg0 |= (ADB_REG_0_NO_KEY << ADB_REG_0_KEY_1_KEY_CODE);
+        // return IDLE state
+        return key_packet;
     }
 
-    if (adb_keycode == ADB_POWER_KEYCODE) {
-        if (isKeyUp)
-        {
-            B_SET(kbdreg0, ADB_REG_0_KEY_2_STATUS_BIT);
-        }
-        kbdreg0 |= (adb_keycode << ADB_REG_0_KEY_2_KEY_CODE);
-    }
-    else{
-        if (!m_keyboard_events.isEmpty()) {
-            event = m_keyboard_events.peek();
-            // if the first key wasn't the power key but the second one is, skip the second key packing
-            // so on the next cycle the power key will be packed as both the first and second key
-            if (event != NULL && usb_keycode_to_adb_code(event->GetKeycode()) != ADB_POWER_KEYCODE)
-            {
-                event = m_keyboard_events.dequeue();
-                if (event->IsKeyUp())
-                {
-                    B_SET(kbdreg0, ADB_REG_0_KEY_2_STATUS_BIT); 
-                }
-                adb_keycode = usb_keycode_to_adb_code(event->GetKeycode());
-                kbdreg0 |= (adb_keycode << ADB_REG_0_KEY_2_KEY_CODE);
-                free(event);
-            }
-            else
-            {
-                kbdreg0 |= (ADB_REG_0_NO_KEY << ADB_REG_0_KEY_2_KEY_CODE);
-            }
-        }
-        else   {
-            kbdreg0 |= (ADB_REG_0_NO_KEY << ADB_REG_0_KEY_2_KEY_CODE);
-        }
-    }
-    if (global_debug)
+    if (m_modifier_keys.bmLeftCtrl || m_modifier_keys.bmRightCtrl) 
+                                      B_SET(key_packet[mod], N5P_MOD_KEY_CONTROL);
+    if (m_modifier_keys.bmLeftShift)  B_SET(key_packet[mod], N5P_MOD_KEY_LSHIFT);
+    if (m_modifier_keys.bmRightShift) B_SET(key_packet[mod], N5P_MOD_KEY_RSHIFT);
+    if (m_modifier_keys.bmLeftAlt)    B_SET(key_packet[mod], N5P_MOD_KEY_LCOMMAND);
+    if (m_modifier_keys.bmRightAlt)   B_SET(key_packet[mod], N5P_MOD_KEY_RCOMMAND);
+    if (m_modifier_keys.bmLeftGUI)    B_SET(key_packet[mod], N5P_MOD_KEY_LALT);
+    if (m_modifier_keys.bmRightGUI)   B_SET(key_packet[mod], N5P_MOD_KEY_RALT);
+    
+    // NeXT keycode is a non modifier key
+    if (!(n5p_keycode >= N5P_KEYCODE_RALT && n5p_keycode <= N5P_MOD_KEY_CONTROL))
     {
+        B_SET(key_packet[mod], N5P_MOD_NOT_ONLY);
+        key_packet[key] = n5p_keycode;
+    }
 
-        Logmsg.print("Keyboard Register 0 = ");
-        Logmsg.println(kbdreg0, fmtHEX);
-    }
-    return kbdreg0;
-}
-
-// Bit   Meaning
-// 15  = None (reserved)
-// 14  = Delete
-// 13  = Caps Lock
-// 12  = Reset
-// 11  = Control
-// 10  = Shift
-// 9   = Option
-// 8   = Command
-// 7   = Num Lock/Clear
-// 6   = Scroll Lock
-// 5-3 = None (reserved)
-// 2   = LED 3 (Scroll Lock)
-// 1   = LED 2 (Caps Lock)
-// 0   = LED 1 (Num Lock)
-
-uint16_t ADBKbdRptParser::GetAdbRegister2()
-{
-    uint16_t kbdreg2 = ADB_REG_2_DEFAULT;
-    if (B_IS_SET(m_custom_mod_keys, DeleteFlag))
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_DELETE);
-    }
-    if (B_IS_SET(m_custom_mod_keys, CapsLockFlag))
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_CAPS_LOCK);
-    }
-    // Reset not implemented - this is only for Apple II
-    if (m_modifier_keys.bmLeftCtrl || m_modifier_keys.bmRightCtrl)
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_CONTROL);
-    }
-    if (m_modifier_keys.bmLeftShift || m_modifier_keys.bmRightShift)
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_SHIFT);
-    }
-    if (m_modifier_keys.bmLeftAlt || m_modifier_keys.bmRightAlt)
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_OPTION);
-    }
-    if (m_modifier_keys.bmLeftGUI || m_modifier_keys.bmRightGUI)
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_COMMAND);
-    }
-    if (B_IS_SET(m_custom_mod_keys, NumLockFlag))
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_NUM_LOCK);
-    }
-    if (B_IS_SET(m_custom_mod_keys, ScrollLockFlag))
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_SCROLL_LOCK);
-    }
-    if (B_IS_SET(m_custom_mod_keys, Led3ScrollLockFlag))
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_SCROLL_LOCK_LED);
-    }
-    if (B_IS_SET(m_custom_mod_keys, Led2CapsLockFlag))
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_CAPS_LOCK_LED);
-    }
-    if (B_IS_SET(m_custom_mod_keys, Led1NumLockFlag))
-    {
-        B_UNSET(kbdreg2, ADB_REG_2_FLAG_NUM_LOCK_LED);
-    }
-    if (global_debug)
-    {
-        Logmsg.print("Kbdreg2 is ");
-        Logmsg.println(kbdreg2, fmtHEX);
-    }
-    return kbdreg2;
+    return key_packet;
 }

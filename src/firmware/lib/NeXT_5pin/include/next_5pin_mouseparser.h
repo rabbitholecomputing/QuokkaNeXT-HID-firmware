@@ -27,9 +27,9 @@
 class ADBMouseRptParser : public MouseRptParser
 {
 public:
-    ADBMouseRptParser(ADBKbdRptParser& kbd_parser);
+    ADBMouseRptParser(N5PKbdRptParser& kbd_parser);
     bool MouseReady();
-    uint16_t GetAdbRegister0();
+    uint16_t GetKey();
 
 protected:
     bool Accumulate(int8_t usb_move, int32_t &adb_move, int32_t &accumulator);

@@ -36,15 +36,14 @@
 
 using simple_circular_queue::SCQueue;
 
-extern uint8_t usb_keycode_to_adb_code(uint8_t usb_code);
+extern uint8_t usb_keycode_to_n5p_code(uint8_t usb_code);
 
 
-class ADBKbdRptParser : public KbdRptParser
+class N5PKbdRptParser : public KbdRptParser
 {
 public:
-    uint16_t GetAdbRegister0();
-    uint16_t GetAdbRegister2();
-    ADBKbdRptParser();
-    virtual ~ADBKbdRptParser();
+    uint8_t* GetKey();
+    N5PKbdRptParser();
+    virtual ~N5PKbdRptParser();
 
 };

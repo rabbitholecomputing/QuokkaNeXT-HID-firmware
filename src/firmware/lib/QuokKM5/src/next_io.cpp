@@ -190,6 +190,16 @@ bool NeXTIO::readyToTransmit()
 
 void NeXTIO::transmit(uint8_t data[2])
 {
-    uint16_t raw_data = data[0] | data[1] << 8;
+    uint32_t raw_data = 0;
+    // idle state
+    if (data[0] == 0 && data[1] == 0)
+    {
+        // stop bits high
+        raw_data = (1 << 8) | (1 << 17); 
+    }
+    else
+    {
+        raw_data = data[0] | data[1] << 9;
+    }
     tx_packet_to_next_send(m_tx_pio, m_tx_state_machine, raw_data);
 }

@@ -70,7 +70,7 @@ bool global_debug = false;
 
 PlatformInterface n5p;
 
-ADBKbdRptParser KeyboardPrs;
+N5PKbdRptParser KeyboardPrs;
 ADBMouseRptParser MousePrs(KeyboardPrs);
 FlashSettings setting_storage;
 
@@ -78,16 +78,16 @@ FlashSettings setting_storage;
 void initVariant() 
 { 
   led_gpio_init();
+  setting_storage.init();
 }
 
 /*------------ Core0 setup ------------*/
 void setup()
 {
   blink_led.blink(1);
-  setting_storage.init();
+
   uart_gpio_init();
   log_init();
-  next_gpio_init();
   Serial1.begin();
   Logmsg.println(PLATFORM_FW_VER_STRING);
   n5p.init();
@@ -157,14 +157,14 @@ void loop()
 
 void setup1()
 {
-  // tuh_init(0);  
+  tuh_init(0);  
   sleep_us(500);
 }
 
 /*------------ Core1 main loop ------------*/
 void loop1()
 {
-  // tuh_task(); // tinyusb host task
+  tuh_task(); // tinyusb host task
   blink_led.poll();
   log_poll();
   

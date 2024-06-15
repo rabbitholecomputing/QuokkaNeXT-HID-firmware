@@ -59,7 +59,7 @@ bool kbd_skip_next_listen_reg3 = false;
 bool g_global_reset = false; 
 extern bool global_debug;
 extern ADBMouseRptParser MousePrs;
-extern ADBKbdRptParser KeyboardPrs;
+extern N5PKbdRptParser KeyboardPrs;
 
 
 
@@ -86,6 +86,12 @@ void N5PInterface::ProcessCommand(N5PCommand cmd)
   
   if (cmd == N5PCommand::KeyboardQuery)
   {
+      if (kbdpending)
+      {
+        // send latest keyboard key
+        // or no output
+      }
+
       static bool make = true;
       uint8_t packet[2] = {0x47, 0x80};
       if (!make)
@@ -95,11 +101,7 @@ void N5PInterface::ProcessCommand(N5PCommand cmd)
       make = !make;
 
       sendPacket(packet);
-      if (kbdpending)
-      {
-        // send latest keyboard key
-        // or no output
-      }
+
       return;
   }
 

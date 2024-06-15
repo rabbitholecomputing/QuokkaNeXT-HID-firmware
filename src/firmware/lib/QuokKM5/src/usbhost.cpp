@@ -27,7 +27,7 @@
 #include "tusb.h"
 #include <class/hid/hid_host.h>
 #include "platform_gpio.h"
-#include "next_5pin_registers.h"
+#include "next_5pin_keys.h"
 #include "usbkbdparser.h"
 #include "usb_hid_keys.h"
 #include "platformkbdparser.h"
@@ -44,7 +44,7 @@
 #define kModCaps 32
 #define kModDelete 64
 extern uint16_t modifierkeys;
-extern ADBKbdRptParser KeyboardPrs;
+extern N5PKbdRptParser KeyboardPrs;
 extern MouseRptParser MousePrs;
 
 bool set_hid_report_ready = true;

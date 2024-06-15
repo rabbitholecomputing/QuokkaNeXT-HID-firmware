@@ -28,6 +28,7 @@
 //---------------------------------------------------------------------------
 
 #include "usb_hid_keys.h"
+#include "next_5pin_keys.h"
 #include <stdint.h>
 #include <Arduino.h>
 // #ifdef ADBUINO
@@ -44,188 +45,194 @@ extern bool global_debug;
 
 // Virtual Keycodes for the Mac QWERTY Layout
 // Keycodes are in hexadecimal.
-uint8_t usb_keycode_to_adb_code(uint8_t usb_code)
+uint8_t usb_keycode_to_n5p_code(uint8_t usb_code)
 {
     switch (usb_code)
     {
     case USB_KEY_A:
-        return 0x00;
+        return N5P_KEYCODE_A;
     case USB_KEY_S:
-        return 0x01;
+        return N5P_KEYCODE_S;
     case USB_KEY_D:
-        return 0x02;
+        return N5P_KEYCODE_D;
     case USB_KEY_F:
-        return 0x03;
+        return N5P_KEYCODE_F;
     case USB_KEY_H:
-        return 0x04;
+        return N5P_KEYCODE_H;
     case USB_KEY_G:
-        return 0x05;
+        return N5P_KEYCODE_G;
     case USB_KEY_Z:
-        return 0x06;
+        return N5P_KEYCODE_Z;
     case USB_KEY_X:
-        return 0x07;
+        return N5P_KEYCODE_X;
     case USB_KEY_C:
-        return 0x08;
+        return N5P_KEYCODE_C;
     case USB_KEY_V:
-        return 0x09;
+        return N5P_KEYCODE_V;
     case USB_KEY_B:
-        return 0x0B;
+        return N5P_KEYCODE_B;
     case USB_KEY_Q:
-        return 0x0C;
+        return N5P_KEYCODE_Q;
     case USB_KEY_W:
-        return 0x0D;
+        return N5P_KEYCODE_W;
     case USB_KEY_E:
-        return 0x0E;
+        return N5P_KEYCODE_E;
     case USB_KEY_R:
-        return 0x0F;
+        return N5P_KEYCODE_F;
     case USB_KEY_Y:
-        return 0x10;
+        return N5P_KEYCODE_Y;
     case USB_KEY_T:
-        return 0x11;
+        return N5P_KEYCODE_T;
     case USB_KEY_1:
-        return 0x12;
+        return N5P_KEYCODE_1;
     case USB_KEY_2:
-        return 0x13;
+        return N5P_KEYCODE_2;
     case USB_KEY_3:
-        return 0x14;
+        return N5P_KEYCODE_3;
     case USB_KEY_4:
-        return 0x15;
+        return N5P_KEYCODE_4;
     case USB_KEY_6:
-        return 0x16;
+        return N5P_KEYCODE_6;
     case USB_KEY_5:
-        return 0x17;
+        return N5P_KEYCODE_5;
     case USB_KEY_EQUAL:
-        return 0x18;
+        return N5P_KEYCODE_EQUAL;
     case USB_KEY_9:
-        return 0x19;
+        return N5P_KEYCODE_9;
     case USB_KEY_7:
-        return 0x1A;
+        return N5P_KEYCODE_7;
     case USB_KEY_MINUS:
-        return 0x1B;
+        return N5P_KEYCODE_MINUS;
     case USB_KEY_8:
-        return 0x1C;
+        return N5P_KEYCODE_8;
     case USB_KEY_0:
-        return 0x1D;
+        return N5P_KEYCODE_0;
     case USB_KEY_RIGHTBRACE:
-        return 0x1E;
+        return N5P_KEYCODE_RBRACKET;
     case USB_KEY_O:
-        return 0x1F;
+        return N5P_KEYCODE_O;
     case USB_KEY_U:
-        return 0x20;
+        return N5P_KEYCODE_U;
     case USB_KEY_LEFTBRACE:
-        return 0x21;
+        return N5P_KEYCODE_LBRACKET;
     case USB_KEY_I:
-        return 0x22;
+        return N5P_KEYCODE_I;
     case USB_KEY_P:
-        return 0x23;
+        return N5P_KEYCODE_P;
     case USB_KEY_ENTER:
-        return 0x24;
+        return N5P_KEYCODE_ENTER;
     case USB_KEY_L:
-        return 0x25;
+        return N5P_KEYCODE_L;
     case USB_KEY_J:
-        return 0x26;
+        return N5P_KEYCODE_J;
     case USB_KEY_APOSTROPHE:
-        return 0x27;
+        return N5P_KEYCODE_QUOTE;
     case USB_KEY_K:
-        return 0x28;
+        return N5P_KEYCODE_K;
     case USB_KEY_SEMICOLON:
-        return 0x29;
+        return N5P_KEYCODE_SEMICOLON;
     case USB_KEY_BACKSLASH:
-        return 0x2A;
+        return N5P_KEYCODE_BACKSLASH;
     case USB_KEY_COMMA:
-        return 0x2B;
+        return N5P_KEYCODE_COMMA;
     case USB_KEY_SLASH:
-        return 0x2C;
+        return N5P_KEYCODE_SLASH;
     case USB_KEY_N:
-        return 0x2D;
+        return N5P_KEYCODE_N;
     case USB_KEY_M:
-        return 0x2E;
+        return N5P_KEYCODE_M;
     case USB_KEY_DOT:
-        return 0x2F;
+        return N5P_KEYCODE_PERIOD;
     case USB_KEY_TAB:
-        return 0x30;
+        return N5P_KEYCODE_TAB;
     case USB_KEY_SPACE:
-        return 0x31;
+        return N5P_KEYCODE_SPACE;
     case USB_KEY_GRAVE:
-        return 0x32;
+        return N5P_KEYCODE_KPGRAVE;
     case USB_KEY_BACKSPACE:
-        return 0x33;
+        return N5P_KEYCODE_DELETE;
     case USB_KEY_ESC:
-        return 0x35;
+        return N5P_KEYCODE_ESC;
     case USB_KEY_CAPSLOCK:
-        return 0x39;
+        return N5P_KEYCODE_CAPSLOCK;
     case USB_KEY_LEFT:
-        return 0x3B;
+        return N5P_KEYCODE_LARROW;
     case USB_KEY_RIGHT:
-        return 0x3C;
+        return N5P_KEYCODE_RARROW;
     case USB_KEY_DOWN:
-        return 0x3D;
+        return N5P_KEYCODE_DOWNARROW;
     case USB_KEY_UP:
-        return 0x3E;
+        return N5P_KEYCODE_UPARROW;
     case USB_KEY_KPDOT:
-        return 0x41;
+        return N5P_KEYCODE_KPDOT;
     case USB_KEY_KPASTERISK:
-        return 0x43;
+        return N5P_KEYCODE_KPASTERISK;
     case USB_KEY_KPPLUS:
-        return 0x45;
+        return N5P_KEYCODE_KPPLUS;
     case USB_KEY_NUMLOCK: 
-        return 0x47;
+        return N5P_KEYCODE_NUMLOCK;
     case USB_KEY_KPSLASH:
-        return 0x4B;
+        return N5P_KEYCODE_KPSLASH;
     case USB_KEY_KPENTER:
-        return 0x4C;
+        return N5P_KEYCODE_KPENTER;
     case USB_KEY_KPMINUS:
-        return 0x4E;
+        return N5P_KEYCODE_KPMINUS;
     case USB_KEY_KPEQUAL:
-        return 0x51;
+        return N5P_KEYCODE_KPEQUAL;
     case USB_KEY_KP0:
-        return 0x52;
+        return N5P_KEYCODE_KP0;
     case USB_KEY_KP1:
-        return 0x53;
+        return N5P_KEYCODE_KP1;
     case USB_KEY_KP2:
-        return 0x54;
+        return N5P_KEYCODE_KP2;
     case USB_KEY_KP3:
-        return 0x55;
+        return N5P_KEYCODE_KP3;
     case USB_KEY_KP4:
-        return 0x56;
+        return N5P_KEYCODE_KP4;
     case USB_KEY_KP5:
-        return 0x57;
+        return N5P_KEYCODE_KP5;
     case USB_KEY_KP6:
-        return 0x58;
+        return N5P_KEYCODE_KP6;
     case USB_KEY_KP7:
-        return 0x59;
+        return N5P_KEYCODE_KP7;
     case USB_KEY_KP8:
-        return 0x5B;
+        return N5P_KEYCODE_KP8;
     case USB_KEY_KP9:
-        return 0x5C;
-    case USB_KEY_F5:
-        return 0x60;
-    case USB_KEY_F6:
-        return 0x61;
-    case USB_KEY_F7:
-        return 0x62;
+        return N5P_KEYCODE_KP9;
     case USB_KEY_F3:
-        return 0x63;
+        return N5P_KEYCODE_VOLUP;
+    case USB_KEY_F11:
+        return N5P_KEYCODE_BRIGHTDOWN;
+    case USB_KEY_F12:
+        return N5P_KEYCODE_BRIGHTUP;
+    case USB_KEY_F15:
+    case USB_KEY_INSERT: // fall through to Help
+    case USB_KEY_HELP:
+        return N5P_KEYCODE_POWER;
+    case USB_KEY_F1:
+        return N5P_KEYCODE_MUTE;
+
+
+
+/* Currently not assigned to anything
+     case USB_KEY_F5:
+        return 0x60;
     case USB_KEY_F8:
         return 0x64;
     case USB_KEY_F9:
         return 0x65;
-    case USB_KEY_F11:
-        return 0x67;
+    case USB_KEY_F6:
+        return 0x61;
+    case USB_KEY_F7:
+        return 0x62;
     case USB_KEY_SCROLLLOCK: // fall through to F14
     case USB_KEY_F14:
         return 0x6B;
     case USB_KEY_F10:
         return 0x6D;
-    case USB_KEY_F12:
-        return 0x6F;
-    case USB_KEY_F15:
     case USB_KEY_PAUSE:
         return 0x71;
-    case USB_KEY_INSERT: // fall through to Help
-    case USB_KEY_HELP:
-        return 0x72;
-    case USB_KEY_HOME:
+        case USB_KEY_HOME:
         return 0x73;
     case USB_KEY_PAGEUP:
         return 0x74;
@@ -236,70 +243,32 @@ uint8_t usb_keycode_to_adb_code(uint8_t usb_code)
     case USB_KEY_END:
         return 0x77;
     case USB_KEY_F2:
-        return 0x78;
+        return N5P_KEYCODE_VOLDOWN;
     case USB_KEY_PAGEDOWN:
-        return 0x79;
-    case USB_KEY_F1:
-        return 0x7A;
+        return 0x79; */
 
     // Use PrntScr/Sysrq key or F13 key as Apple Power key
     case USB_KEY_SYSRQ: // fall through to F13
     case USB_KEY_F13:
-        return 0x7F;
+        return N5P_KEYCODE_POWER;
     case USB_KEY_RIGHTCTRL:
-        if (IS_EXTENDED_KEYBOARD())
-        {
-            return 0x7D;
-        }
-        else 
-        {
-            return 0x36;    
-        }        
     case USB_KEY_LEFTCTRL:
-        return 0x36;
+        return N5P_KEYCODE_CONTROL;
     case USB_KEY_RIGHTSHIFT:
-        if (IS_EXTENDED_KEYBOARD())
-        {
-            return 0x7B;
-        }
-        else 
-        {
-            return 0x38;    
-        }
+        return N5P_KEYCODE_RSHIFT;
     case USB_KEY_LEFTSHIFT:
-        return 0x38;
+        return N5P_KEYCODE_LSHIFT;
     case USB_KEY_RIGHTALT:
-        if (IS_EXTENDED_KEYBOARD())
-        {
-            return 0x7C;
-        }
-        else 
-        {
-            return 0x3A;    
-        }    
+        return N5P_KEYCODE_RCOMMAND;        
     case USB_KEY_LEFTALT:
-        return 0x3A;
+        return N5P_KEYCODE_LCOMMAND;
     case USB_KEY_RIGHTMETA: // fall through to LEFTMETA
+        return N5P_KEYCODE_RALT;
     case USB_KEY_LEFTMETA:
-        return 0x37;
+        return N5P_KEYCODE_LALT;
 
 
     default:
-        if (global_debug)
-        {
-            Logmsg.print("Unknown keycode found: ");
-            Logmsg.println(usb_code, fmtHEX);
-        }
-        return 0xFF;
-
-        // 0x37        USB_KEY_Cmd (Apple)
-        // 0x38        USB_KEY_LEFTSHIFT
-        // 0x39        USB_KEY_CAPSLOCK
-        // 0x3A        USB_KEY_Option
-        // 0x3B        USB_KEY_Control
-        // 0x7D        Extended Keyboard Right Control
-        // 0x7B        Extended Keyboard Right Shift
-        // 0x7C        Extended Keyboard Right Option
-
+        return N5P_KEYCODE_NONE;
     }
 }
