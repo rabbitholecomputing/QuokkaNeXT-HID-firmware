@@ -154,7 +154,7 @@ void PlatformKbdParser::Parse(uint8_t dev_addr, uint8_t instance, hid_keyboard_r
     }
 
     // store current buttons to test against next keyboard action
-    for (uint8_t i = 0; i < 8; i++)
+    for (uint8_t i = 0; i < sizeof(prevState.bInfo); i++)
         prevState.bInfo[i] = current_state.bInfo[i];
 }
 // bool tuh_hid_set_report(uint8_t dev_addr, uint8_t instance, uint8_t report_id, uint8_t report_type, void* report, uint16_t len);

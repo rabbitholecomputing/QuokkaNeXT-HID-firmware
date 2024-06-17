@@ -46,8 +46,9 @@ public:
     static const uint8_t KeyDown = 0x01;
     static const uint8_t KeyUp = 0x02;
     inline uint8_t GetKeycode() { return m_keycode; }
-    inline bool IsKeyUp() { return m_key_updown == KeyUp; }
+    inline bool IsKeyUp()   { return m_key_updown == KeyUp; }
     inline bool IsKeyDown() { return m_key_updown == KeyDown; }
+    inline uint8_t GetModifiers() { return m_mod; }
     
     KeyEvent(uint8_t KeyCode, uint8_t KeyUpDown, uint8_t mod)
     {

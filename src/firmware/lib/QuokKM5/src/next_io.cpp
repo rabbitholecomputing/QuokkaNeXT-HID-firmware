@@ -199,7 +199,7 @@ void NeXTIO::transmit(uint8_t data[2])
     }
     else
     {
-        raw_data = data[0] | data[1] << 9;
+        raw_data = data[0] | (data[1] << 9);
     }
     tx_packet_to_next_send(m_tx_pio, m_tx_state_machine, raw_data);
 }

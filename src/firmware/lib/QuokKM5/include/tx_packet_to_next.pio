@@ -38,11 +38,11 @@ set pins, 1;
 set pindirs, 1;
 .wrap_target
     pull block;
-    set y, 1;  -- byte counter for two packets
+    set y, 1;  -- packet counter for two packets
 ; -- first and second 9bit packets
 start_byte: 
     set pins, 0; -- send start bit
-    set x,8;   -- bit counter for a single byte
+    set x, 8;   -- bit counter for a single byte
 ; -- shift out 9 bits
 write_data:
     out pins, 1 ;
@@ -53,7 +53,7 @@ write_data:
 .wrap
 
 % c-sdk {
-static inline void tx_packet_to_next_program_init(PIO pio, uint8_t sm, uint32_t offset, uint8_t pin)
+static inline void tx_packet_to_next_program_init(PIO pio, uint8_t sm, uint32_t offset, uint8_t pin, uint16_t idiv)
 {
     pio_gpio_init(pio, pin);
     pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true);
@@ -61,7 +61,7 @@ static inline void tx_packet_to_next_program_init(PIO pio, uint8_t sm, uint32_t 
     sm_config_set_out_shift(&c, true, false, 0);
     sm_config_set_set_pins(&c, pin, 1);
     sm_config_set_out_pins(&c, pin, 1);
-    sm_config_set_clkdiv_int_frac(&c, 7200 / 2, 0);
+    sm_config_set_clkdiv_int_frac(&c, idiv, 0);
     pio_set_irq0_source_enabled(pio, pis_interrupt0, true);
     pio_sm_init(pio, sm, offset, &c);
     pio_sm_set_enabled(pio, sm, true);

@@ -30,10 +30,10 @@
 
 class N5PInterface {
   public:
-    virtual void init();
-    virtual N5PCommand ReceiveCommand();
+    virtual void init() = 0;
+    virtual N5PCommand ReceiveCommand() = 0;
     virtual void ProcessCommand(N5PCommand cmd);
-    virtual void blockUntilResetCmd();
-    virtual void sendPacket(uint8_t data[2]);
+    virtual void blockUntilResetCmd() = 0;
+    virtual void sendPacket(uint8_t data[2]) = 0;
     virtual void Reset(void);
 };

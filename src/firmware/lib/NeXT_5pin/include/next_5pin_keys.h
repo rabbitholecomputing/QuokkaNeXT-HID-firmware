@@ -21,6 +21,9 @@
 //----------------------------------------------------------------------------
 #pragma once
 
+#define N5P_KEYCODE_IDX 0
+#define N5P_MOD_KEY_IDX 1
+
 // These are the modifier bits for the non-adb NeXT keyboard to host protocol
 // M
 //  Bit   Meaning

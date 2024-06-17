@@ -13,7 +13,7 @@
 // ----------------- //
 
 #define tx_packet_to_next_wrap_target 2
-#define tx_packet_to_next_wrap 11
+#define tx_packet_to_next_wrap 10
 
 static const uint16_t tx_packet_to_next_program_instructions[] = {
     0xe001, //  0: set    pins, 1                    
@@ -22,20 +22,19 @@ static const uint16_t tx_packet_to_next_program_instructions[] = {
     0x80a0, //  2: pull   block                      
     0xe041, //  3: set    y, 1                       
     0xe000, //  4: set    pins, 0                    
-    0xe027, //  5: set    x, 7                       
+    0xe028, //  5: set    x, 8                       
     0x6001, //  6: out    pins, 1                    
     0x0046, //  7: jmp    x--, 6                     
-    0xe100, //  8: set    pins, 0                [1] 
-    0xe001, //  9: set    pins, 1                    
-    0x0084, // 10: jmp    y--, 4                     
-    0xc000, // 11: irq    nowait 0                   
+    0xe001, //  8: set    pins, 1                    
+    0x0084, //  9: jmp    y--, 4                     
+    0xc000, // 10: irq    nowait 0                   
             //     .wrap
 };
 
 #if !PICO_NO_HARDWARE
 static const struct pio_program tx_packet_to_next_program = {
     .instructions = tx_packet_to_next_program_instructions,
-    .length = 12,
+    .length = 11,
     .origin = -1,
 };
 
@@ -58,9 +57,9 @@ static inline void tx_packet_to_next_program_init(PIO pio, uint8_t sm, uint32_t 
     pio_sm_init(pio, sm, offset, &c);
     pio_sm_set_enabled(pio, sm, true);
 }
-static inline void tx_packet_to_next_send(PIO pio, uint8_t sm, uint16_t data)
+static inline void tx_packet_to_next_send(PIO pio, uint8_t sm, uint32_t data)
 {
-    io_rw_16 *txfifo = (io_rw_16*) &pio->txf[sm];
+    io_rw_32 *txfifo = (io_rw_32*) &pio->txf[sm];
     *txfifo = data;
 }
 

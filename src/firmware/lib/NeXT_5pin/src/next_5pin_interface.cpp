@@ -30,6 +30,7 @@
 //----------------------------------------------------------------------------
 #include <Arduino.h>
 #include "next_5pin_interface.h"
+#include "next_5pin_keys.h"
 #include "bithacks.h"
 #include "math.h"
 #include <platform_logmsg.h>
@@ -39,14 +40,7 @@
 
 uint8_t mousepending = 0;
 uint8_t kbdpending = 0;
-uint8_t kbdskip = 0;
-uint16_t kbdprev0 = 0;
-uint16_t kbdreg0 = 0;
-uint16_t kbdreg2 = 0xFFFF;
-uint8_t kbdsrq = 0;
-uint8_t mousesrq = 0;
 uint16_t modifierkeys = 0xFFFF;
-uint64_t kbskiptimer = 0;
 
 bool n5p_reset = false;
 
@@ -60,9 +54,6 @@ bool g_global_reset = false;
 extern bool global_debug;
 extern ADBMouseRptParser MousePrs;
 extern N5PKbdRptParser KeyboardPrs;
-
-
-
 
 void N5PInterface::ProcessCommand(N5PCommand cmd)
 {
@@ -80,29 +71,34 @@ void N5PInterface::ProcessCommand(N5PCommand cmd)
       mousepending = 0;
       // collect mouse input and output
     }
-     
+
     return;
   }
-  
+
   if (cmd == N5PCommand::KeyboardQuery)
   {
-      if (kbdpending)
-      {
-        // send latest keyboard key
-        // or no output
-      }
+    static uint8_t key[2];
+    bool found_key = false;
+    while (KeyboardPrs.PendingKeyboardEvent())
+    {
+      memcpy(key, KeyboardPrs.GetKey(), sizeof(key));
+      // Unmapped USB keypress queued
+      if (key[N5P_KEYCODE_IDX] == N5P_KEYCODE_NONE && key[N5P_MOD_KEY_IDX] == 0x00) 
+        continue;
 
-      static bool make = true;
-      uint8_t packet[2] = {0x47, 0x80};
-      if (!make)
-      {
-        packet[0] |= 0x80;
-      }
-      make = !make;
+      found_key = true;
+      break;
+    }
+    
+    // No key pressed, send idle packet
+    if (!found_key)
+    {
+      key[N5P_KEYCODE_NONE] = 0;
+      key[N5P_MOD_KEY_IDX] = 0;
+    }
 
-      sendPacket(packet);
-
-      return;
+    sendPacket(key);
+    return;
   }
 
   static bool leftLED = false;

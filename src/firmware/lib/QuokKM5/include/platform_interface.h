@@ -32,6 +32,7 @@
 class PlatformInterface : public N5PInterface 
 {
   public:
+    virtual ~PlatformInterface() = default;
     virtual void init() override; 
     virtual void blockUntilResetCmd() override;
     virtual N5PCommand ReceiveCommand() override;

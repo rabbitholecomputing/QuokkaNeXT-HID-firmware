@@ -45,7 +45,7 @@ uint16_t ADBMouseRptParser::GetKey()
     static bool button_right_last;
     bool button_left = button_left_last;
     bool button_right = button_right_last;
-    uint16_t reg_value = 0;;
+    uint16_t reg_value = 0;
     MOUSE_CLICK* click = nullptr;
 
     if (!m_click_events.isEmpty())

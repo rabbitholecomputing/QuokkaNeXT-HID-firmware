@@ -187,6 +187,7 @@ void KbdRptParser::OnKeyUp(uint8_t mod, uint8_t key)
 
 void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)
 {
+
     MODIFIERKEYS beforeMod;
     *((uint8_t *)&beforeMod) = before;
 
@@ -194,6 +195,7 @@ void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)
     *((uint8_t *)&afterMod) = after;
 
     m_modifier_keys = *((MODIFIERKEYS *)&after);
+    uint8_t mod = after;
 
     if (global_debug)
     {
@@ -212,11 +214,11 @@ void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)
         }
         if (afterMod.bmLeftCtrl)
         {
-            OnKeyDown(0, USB_KEY_LEFTCTRL);
+            OnKeyDown(mod, USB_KEY_LEFTCTRL);
         }
         else
         {
-            OnKeyUp(0, USB_KEY_LEFTCTRL);
+            OnKeyDown(mod, USB_KEY_LEFTCTRL);
         }
     }
     if (beforeMod.bmLeftShift != afterMod.bmLeftShift)
@@ -227,11 +229,11 @@ void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)
         }
         if (afterMod.bmLeftShift)
         {
-            OnKeyDown(0, USB_KEY_LEFTSHIFT);
+            OnKeyDown(mod, USB_KEY_LEFTSHIFT);
         }
         else
         {
-            OnKeyUp(0, USB_KEY_LEFTSHIFT);
+            OnKeyDown(mod, USB_KEY_LEFTSHIFT);
         }
     }
     if (beforeMod.bmLeftAlt != afterMod.bmLeftAlt)
@@ -242,11 +244,11 @@ void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)
         }
         if (afterMod.bmLeftAlt)
         {
-            OnKeyDown(0, USB_KEY_LEFTALT);
+            OnKeyDown(mod, USB_KEY_LEFTALT);
         }
         else
         {
-            OnKeyUp(0, USB_KEY_LEFTALT);
+            OnKeyDown(mod, USB_KEY_LEFTALT);
         }
     }
     if (beforeMod.bmLeftGUI != afterMod.bmLeftGUI)
@@ -257,11 +259,11 @@ void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)
         }
         if (afterMod.bmLeftGUI)
         {
-            OnKeyDown(0, USB_KEY_LEFTMETA);
+            OnKeyDown(mod, USB_KEY_LEFTMETA);
         }
         else
         {
-            OnKeyUp(0, USB_KEY_LEFTMETA);
+            OnKeyDown(mod, USB_KEY_LEFTMETA);
         }
     }
 
@@ -273,11 +275,11 @@ void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)
         }
         if (afterMod.bmRightCtrl)
         {
-            OnKeyDown(0, USB_KEY_RIGHTCTRL);
+            OnKeyDown(mod, USB_KEY_RIGHTCTRL);
         }
         else
         {
-            OnKeyUp(0, USB_KEY_RIGHTCTRL);
+            OnKeyDown(mod, USB_KEY_RIGHTCTRL);
         }
     }
     if (beforeMod.bmRightShift != afterMod.bmRightShift)
@@ -288,11 +290,11 @@ void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)
         }
         if (afterMod.bmRightShift)
         {
-            OnKeyDown(0, USB_KEY_RIGHTSHIFT);
+            OnKeyDown(mod, USB_KEY_RIGHTSHIFT);
         }
         else
         {
-            OnKeyUp(0, USB_KEY_RIGHTSHIFT);
+            OnKeyDown(mod, USB_KEY_RIGHTSHIFT);
         }
     }
     if (beforeMod.bmRightAlt != afterMod.bmRightAlt)
@@ -303,11 +305,11 @@ void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)
         }
         if (afterMod.bmRightAlt)
         {
-            OnKeyDown(0, USB_KEY_RIGHTALT);
+            OnKeyDown(mod, USB_KEY_RIGHTALT);
         }
         else
         {
-            OnKeyUp(0, USB_KEY_RIGHTALT);
+            OnKeyDown(mod, USB_KEY_RIGHTALT);
         }
     }
     if (beforeMod.bmRightGUI != afterMod.bmRightGUI)
@@ -318,11 +320,11 @@ void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)
         }
         if (afterMod.bmRightGUI)
         {
-            OnKeyDown(0, USB_KEY_RIGHTMETA);
+            OnKeyDown(mod, USB_KEY_RIGHTMETA);
         }
         else
         {
-            OnKeyUp(0, USB_KEY_RIGHTMETA);
+            OnKeyDown(mod, USB_KEY_RIGHTMETA);
         }
     }
 }

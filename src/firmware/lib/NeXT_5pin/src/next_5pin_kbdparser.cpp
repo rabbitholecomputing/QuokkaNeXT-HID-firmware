@@ -46,24 +46,25 @@ N5PKbdRptParser::~N5PKbdRptParser()
 
 uint8_t* N5PKbdRptParser::GetKey()
 {
-    const uint8_t key = 0, mod = 1;
     static uint8_t key_packet[2];
-    key_packet[0] = 0;
-    key_packet[1] = 0;
+    key_packet[N5P_KEYCODE_IDX] = 0;
+    key_packet[N5P_MOD_KEY_IDX] = 0;
     KeyEvent *event;
     uint8_t n5p_keycode = 0;
-    uint8_t n5p_modifiers = 0;
     bool is_key_up;
+    uint8_t modifiers_usb;
     // Pack the first key event
     if (!m_keyboard_events.isEmpty())
     {
         event = m_keyboard_events.dequeue();
         is_key_up = event->IsKeyUp();
-        if (!is_key_up)
+        if (is_key_up)
         {
+            // key break (key up) bit
             n5p_keycode = 0x80;
         }
         n5p_keycode |= usb_keycode_to_n5p_code(event->GetKeycode());
+        modifiers_usb = event->GetModifiers();
         delete(event);
     }
     else
@@ -71,21 +72,26 @@ uint8_t* N5PKbdRptParser::GetKey()
         // return IDLE state
         return key_packet;
     }
+    MODIFIERKEYS modifier_keys = *((MODIFIERKEYS*)(&modifiers_usb));
 
-    if (m_modifier_keys.bmLeftCtrl || m_modifier_keys.bmRightCtrl) 
-                                      B_SET(key_packet[mod], N5P_MOD_KEY_CONTROL);
-    if (m_modifier_keys.bmLeftShift)  B_SET(key_packet[mod], N5P_MOD_KEY_LSHIFT);
-    if (m_modifier_keys.bmRightShift) B_SET(key_packet[mod], N5P_MOD_KEY_RSHIFT);
-    if (m_modifier_keys.bmLeftAlt)    B_SET(key_packet[mod], N5P_MOD_KEY_LCOMMAND);
-    if (m_modifier_keys.bmRightAlt)   B_SET(key_packet[mod], N5P_MOD_KEY_RCOMMAND);
-    if (m_modifier_keys.bmLeftGUI)    B_SET(key_packet[mod], N5P_MOD_KEY_LALT);
-    if (m_modifier_keys.bmRightGUI)   B_SET(key_packet[mod], N5P_MOD_KEY_RALT);
-    
-    // NeXT keycode is a non modifier key
-    if (!(n5p_keycode >= N5P_KEYCODE_RALT && n5p_keycode <= N5P_MOD_KEY_CONTROL))
+    if (modifier_keys.bmLeftCtrl || modifier_keys.bmRightCtrl) 
+                                      B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_CONTROL);
+    if (modifier_keys.bmLeftShift)  B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_LSHIFT);
+    if (modifier_keys.bmRightShift) B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_RSHIFT);
+    if (modifier_keys.bmLeftAlt)    B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_LCOMMAND);
+    if (modifier_keys.bmRightAlt)   B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_RCOMMAND);
+    if (modifier_keys.bmLeftGUI)    B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_LALT);
+    if (modifier_keys.bmRightGUI)   B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_RALT);
+
+    // NeXT keycode is a modifier key
+    if ((n5p_keycode & 0x7F) >= N5P_KEYCODE_RALT && (n5p_keycode & 0x7F) <= N5P_KEYCODE_CONTROL)
     {
-        B_SET(key_packet[mod], N5P_MOD_NOT_ONLY);
-        key_packet[key] = n5p_keycode;
+        key_packet[N5P_KEYCODE_IDX] = 0x80;
+    }
+    else
+    {
+        B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_NOT_ONLY);
+        key_packet[N5P_KEYCODE_IDX] = n5p_keycode;
     }
 
     return key_packet;

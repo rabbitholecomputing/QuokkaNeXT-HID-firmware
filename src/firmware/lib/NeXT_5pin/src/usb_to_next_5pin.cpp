@@ -38,12 +38,9 @@
 #endif
 #include <platform_logmsg.h>
 
-extern uint8_t kbd_handler_id;
 extern bool global_debug;
 
-#define IS_EXTENDED_KEYBOARD() (0x3 == kbd_handler_id)
-
-// Virtual Keycodes for the Mac QWERTY Layout
+// Virtual Keycodes for the NeXT keyboard layout
 // Keycodes are in hexadecimal.
 uint8_t usb_keycode_to_n5p_code(uint8_t usb_code)
 {
@@ -78,7 +75,7 @@ uint8_t usb_keycode_to_n5p_code(uint8_t usb_code)
     case USB_KEY_E:
         return N5P_KEYCODE_E;
     case USB_KEY_R:
-        return N5P_KEYCODE_F;
+        return N5P_KEYCODE_R;
     case USB_KEY_Y:
         return N5P_KEYCODE_Y;
     case USB_KEY_T:
