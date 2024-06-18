@@ -49,7 +49,7 @@ N5PCommand PlatformInterface::ReceiveCommand()
     return m_io.receiveCmd();
 }
 
-void PlatformInterface::sendPacket(uint8_t data[2])
+void PlatformInterface::sendPacket(uint8_t *data)
 {
   while (!m_io.readyToTransmit());
   m_io.transmit(data);

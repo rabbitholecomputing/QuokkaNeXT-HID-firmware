@@ -188,11 +188,11 @@ bool NeXTIO::readyToTransmit()
     return g_next_io_tx_done;
 }
 
-void NeXTIO::transmit(uint8_t data[2])
+void NeXTIO::transmit(uint8_t *data)
 {
     uint32_t raw_data = 0;
     // idle state
-    if (data[0] == 0 && data[1] == 0)
+    if (data == nullptr)
     {
         // stop bits high
         raw_data = (1 << 8) | (1 << 17); 

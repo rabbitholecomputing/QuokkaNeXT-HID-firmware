@@ -52,7 +52,7 @@ bool mouse_skip_next_listen_reg3 = false;
 bool kbd_skip_next_listen_reg3 = false;
 bool g_global_reset = false; 
 extern bool global_debug;
-extern ADBMouseRptParser MousePrs;
+extern N5PMouseRptParser MousePrs;
 extern N5PKbdRptParser KeyboardPrs;
 
 void N5PInterface::ProcessCommand(N5PCommand cmd)
@@ -63,15 +63,9 @@ void N5PInterface::ProcessCommand(N5PCommand cmd)
     return;
   }
 
-  // see if it is addressed to us
   if (cmd == N5PCommand::MouseQuery)
   {
-    if (mousepending)
-    {
-      mousepending = 0;
-      // collect mouse input and output
-    }
-
+    sendPacket(MousePrs.GetMouseData());
     return;
   }
 
@@ -83,18 +77,18 @@ void N5PInterface::ProcessCommand(N5PCommand cmd)
     {
       memcpy(key, KeyboardPrs.GetKey(), sizeof(key));
       // Unmapped USB keypress queued
-      if (key[N5P_KEYCODE_IDX] == N5P_KEYCODE_NONE && key[N5P_MOD_KEY_IDX] == 0x00) 
+      if (key[N5P_KEYCODE_IDX] == N5P_KEYCODE_NONE && key[N5P_MOD_KEY_IDX] == 0x00)
         continue;
 
       found_key = true;
       break;
     }
-    
+
     // No key pressed, send idle packet
     if (!found_key)
     {
-      key[N5P_KEYCODE_NONE] = 0;
-      key[N5P_MOD_KEY_IDX] = 0;
+      sendPacket(nullptr);
+      return;
     }
 
     sendPacket(key);

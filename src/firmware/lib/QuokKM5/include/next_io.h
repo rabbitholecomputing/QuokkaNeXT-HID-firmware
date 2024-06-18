@@ -43,7 +43,7 @@ class NeXTIO
         virtual bool readyToTransmit();
 
         // Transmit two 8 bit packets to the NeXT machine
-        virtual void transmit(uint8_t data[2]);
+        virtual void transmit(uint8_t *data);
 
     protected:
         // Receive 9bit packet from NeXT machine

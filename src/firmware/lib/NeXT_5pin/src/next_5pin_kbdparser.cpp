@@ -69,7 +69,6 @@ uint8_t* N5PKbdRptParser::GetKey()
     }
     else
     {
-        // return IDLE state
         return key_packet;
     }
     MODIFIERKEYS modifier_keys = *((MODIFIERKEYS*)(&modifiers_usb));

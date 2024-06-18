@@ -72,8 +72,9 @@ void PlatformMouseParser::Parse(const hid_mouse_report_t *report){
     mouse_info.dX = report->x;
     mouse_info.dY = report->y;
 
-    m_x += mouse_info.dX;
-    m_y += mouse_info.dY;
+    // NeXT axis is flipped of USB axis
+    m_x -= mouse_info.dX;
+    m_y -= mouse_info.dY;
 
     auto significant_motion = (m_x >= sensitivity_divisor || m_x <= -sensitivity_divisor || m_y >= sensitivity_divisor || m_y <= -sensitivity_divisor);
 

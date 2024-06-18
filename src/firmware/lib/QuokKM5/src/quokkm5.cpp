@@ -71,7 +71,7 @@ bool global_debug = false;
 PlatformInterface n5p;
 
 N5PKbdRptParser KeyboardPrs;
-ADBMouseRptParser MousePrs(KeyboardPrs);
+N5PMouseRptParser MousePrs(KeyboardPrs);
 FlashSettings setting_storage;
 
 /*------------ Pre Core0 and Core1 setup ------------*/

@@ -24,12 +24,15 @@
 #include "next_5pin_kbdparser.h"
 #include "usbmouseparser.h"
 
-class ADBMouseRptParser : public MouseRptParser
+#define N5P_MOUSE_X_IDX 0
+#define N5P_MOUSE_Y_IDX 1
+
+class N5PMouseRptParser : public MouseRptParser
 {
 public:
-    ADBMouseRptParser(N5PKbdRptParser& kbd_parser);
+    N5PMouseRptParser(N5PKbdRptParser& kbd_parser);
     bool MouseReady();
-    uint16_t GetKey();
+    uint8_t *GetMouseData();
 
 protected:
     bool Accumulate(int8_t usb_move, int32_t &adb_move, int32_t &accumulator);
