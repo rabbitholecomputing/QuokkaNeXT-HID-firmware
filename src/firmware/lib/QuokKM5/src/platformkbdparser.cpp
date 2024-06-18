@@ -39,7 +39,6 @@
 
 extern uint16_t modifierkeys;
 extern bool set_hid_report_ready;
-extern FlashSettings setting_storage;
 extern bool global_debug;
 
 uint8_t inline findModifierKey(hid_keyboard_report_t const *report, const hid_keyboard_modifier_bm_t mod)
@@ -175,7 +174,12 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
     const char OFF_STRING[] = "Off";
     uint8_t special_key_count = 0;
     uint8_t special_key = 0;
-    uint8_t special_keys[] = {USB_KEY_V, USB_KEY_K, USB_KEY_L, USB_KEY_P, USB_KEY_EQUAL, USB_KEY_MINUS, USB_KEY_KPPLUS, USB_KEY_KPMINUS, USB_KEY_S, USB_KEY_R};
+    uint8_t special_keys[] = {
+        USB_KEY_V, USB_KEY_K, USB_KEY_L, USB_KEY_P, 
+        USB_KEY_EQUAL, USB_KEY_MINUS, USB_KEY_KPPLUS, USB_KEY_KPMINUS,
+        USB_KEY_LEFTBRACE, USB_KEY_RIGHTBRACE, USB_KEY_W, 
+        USB_KEY_S, USB_KEY_R
+        };
     uint8_t caps_lock_down = false;
     char print_buf[1024];
     for (uint8_t i = 0; i < 6; i++)
@@ -216,24 +220,37 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
             snprintf(print_buf, sizeof(print_buf),
                     "Current Settings\n"
                     "================\n"
-                    "Command <-> Option key swap: %s\n"
+                    "Command <-> Alt key swap: %s\n"
                     "LED: %s\n"
                     "Mouse Sensitivity Divisor: %u\n"
                     "(higher = less sensitive)\n"
+                    "Mouse wheel count: %d\n"
+                    "Flip mouse wheel axis: %s\n"
                     "\n"
-                    "Special Keys = CAPS + Ctrl + Shift + [Key]\n"
-                    "Alternate Keys = Ctrl + Cmd + Option + [Key]\n"
+                    "Special Keys = CAPS + Ctrl + Shift + (Key)\n"
+                    "Alternate Keys = Ctrl + Cmd + Alt + (Key)\n"
                     "------------------------------------------\n"
-                    "[V]: print firmware version\n"
-                    "[S]: save settings to flash - LED blinks %d times\n"
-                    "[R]: remove settings from flash - LED blinks %d times\n"
-                    "[K]: swap option and command key positions\n"
-                    "[L]: toggle status LED On/Off\n"
-                    "[+]: increase sensitivity\n"
-                    "[-]: decrease sensitivity\n",
+                    "(V): print firmware version\n"
+                    "(S): save settings to flash - LED blinks %d times\n"
+                    "(R): remove settings from flash - LED blinks %d times\n"
+                    "(K): swap alt and command key positions\n"
+                    "(L): toggle status LED On/Off\n"
+                    "(+): increase sensitivity - LED blinks divisor count\n"
+                    "(-): decrease sensitivity - LED blinks divisor count\n"
+                    "\n"
+                    "Change mouse wheel count 'x' by one with '[' or ']'\n"
+                    "If positive press the up/down arrow 'x' times for each wheel movement\n"
+                    "If negative divide the mouse wheel movement by 'abs(x)'\n"
+                    "(]): increase the mouse wheel count - LED blinks twice\n"
+                    "([): decrease the mouse wheel count - LED blinks once\n"
+                    "(W): flip mouse wheel axis\n"
+                    "Note: not all mice support the mouse wheel in HID boot protocol"
+                    ,
                     setting_storage.settings()->swap_modifiers ? ON_STRING : OFF_STRING,
-                    setting_storage.settings()->led_on ? ON_STRING : OFF_STRING,
+                    setting_storage.settings()->led_enabled ? ON_STRING : OFF_STRING,
                     setting_storage.settings()->sensitivity_divisor,
+                    setting_storage.settings()->mouse_wheel_count,
+                    setting_storage.settings()->swap_mouse_wheel_axis ? ON_STRING : OFF_STRING,
                     SAVE_TO_FLASH_BLINK_COUNT,
                     CLEAR_FLASH_BLINK_COUNT);
             SendString(print_buf);
@@ -250,7 +267,7 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
             setting_storage.settings()->swap_modifiers ^= 1;
             break;
         case USB_KEY_L:
-            setting_storage.settings()->led_on ^= 1;
+            setting_storage.settings()->led_enabled ^= 1;
             break;
         case USB_KEY_KPPLUS:
         case USB_KEY_EQUAL:
@@ -267,6 +284,23 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
             else
                 setting_storage.settings()->sensitivity_divisor++;
             blink_led.blink(setting_storage.settings()->sensitivity_divisor);
+            break;
+        case USB_KEY_LEFTBRACE:
+            if (setting_storage.settings()->mouse_wheel_count > -8)
+            {
+                setting_storage.settings()->mouse_wheel_count--;
+                blink_led.blink(1);
+            }
+            break;
+        case USB_KEY_RIGHTBRACE:
+            if (setting_storage.settings()->mouse_wheel_count < 10)
+            {
+                setting_storage.settings()->mouse_wheel_count++;
+                blink_led.blink(2);
+            }
+            break;
+        case USB_KEY_W:
+            setting_storage.settings()->swap_mouse_wheel_axis ^= 1;
             break;
         }
 
@@ -305,26 +339,28 @@ void PlatformKbdParser::SendString(const char *message)
             Logmsg.println("Warning! unable to queue CAPSLOCK key up");
         }
     }
-
+    
     while (message[i] != '\0')
     {
-        while (PendingKeyboardEvent())
-            ;
+        uint8_t mod = 0;
+        while (PendingKeyboardEvent());
 
         key = char_to_usb_keycode(message[i++]);
 
         if (key.shift_down)
         {
-            OnKeyDown(0, USB_KEY_LEFTSHIFT);
+            mod = USB_KEY_MOD_LSHIFT;
+            OnKeyDown(mod, USB_KEY_LEFTSHIFT);
         }
 
-        OnKeyDown(0, key.keycode);
+        OnKeyDown(mod, key.keycode);
 
-        OnKeyUp(0, key.keycode);
+        OnKeyUp(mod, key.keycode);
 
         if (key.shift_down)
         {
-            OnKeyUp(0, USB_KEY_LEFTSHIFT);
+            mod = 0;
+            OnKeyUp(mod, USB_KEY_LEFTSHIFT);
         }
     }
 }
@@ -341,35 +377,39 @@ void PlatformKbdParser::ChangeUSBKeyboardLEDs(void)
     usb_kbd_leds |= kbdLockingKeys.kbdLeds.bmCapsLock ? 0x2 : 0;
     usb_kbd_leds |= kbdLockingKeys.kbdLeds.bmScrollLock ? 0x4 : 0;
 
-    bool try_again = true;
-    if (set_hid_report_ready && keyboards_list[i].in_use)
+    while(true)
     {
-        set_hid_report_ready = false;
-        try_again = false;
-        if (!tuh_hid_set_report(
-                keyboards_list[i].device_addr,
-                keyboards_list[i].instance,
-                0,
-                HID_REPORT_TYPE_OUTPUT,
-                &(usb_kbd_leds),
-                sizeof(usb_kbd_leds)))
+        bool try_again = true;
+        if (set_hid_report_ready && keyboards_list[i].in_use)
         {
-            set_hid_report_ready = true;
-            printf("KBD: tuh_hid_set_report failed, dev addr: %hhx, instance: %hhx\n",
-                   keyboards_list[i].device_addr,
-                   keyboards_list[i].instance);
+            set_hid_report_ready = false;
+            try_again = false;
+            if (!tuh_hid_set_report(
+                    keyboards_list[i].device_addr,
+                    keyboards_list[i].instance,
+                    0,
+                    HID_REPORT_TYPE_OUTPUT,
+                    &(usb_kbd_leds),
+                    sizeof(usb_kbd_leds)))
+            {
+                set_hid_report_ready = true;
+                printf("KBD: tuh_hid_set_report failed, dev addr: %hhx, instance: %hhx\n",
+                    keyboards_list[i].device_addr,
+                    keyboards_list[i].instance);
+            }
         }
-    }
 
-    if (!keyboards_list[i].in_use || !try_again)
-    {
-        i++;
-    }
+        if (!keyboards_list[i].in_use || !try_again)
+        {
+            i++;
+        }
 
-    if (i >= MAX_KEYBOARDS)
-    {
-        usb_set_leds = false;
-        i = 0;
+        if (i >= MAX_KEYBOARDS)
+        {
+            usb_set_leds = false;
+            i = 0;
+            break;
+        }
     }
 }
 

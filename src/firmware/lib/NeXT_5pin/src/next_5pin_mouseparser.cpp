@@ -29,14 +29,10 @@
 #include <limits.h>
 extern bool global_debug;
 
-N5PMouseRptParser::N5PMouseRptParser(N5PKbdRptParser &kbd_parser)
+N5PMouseRptParser::N5PMouseRptParser(N5PKbdRptParser &kbd_parser) : 
+    m_moved{false}
 {
     m_keyboard = &kbd_parser;
-}
-
-bool N5PMouseRptParser::MouseReady()
-{
-    return MouseChanged();
 }
 
 uint8_t *N5PMouseRptParser::GetMouseData()
@@ -48,6 +44,7 @@ uint8_t *N5PMouseRptParser::GetMouseData()
     static bool button_right_last;
     bool button_left = button_left_last;
     bool button_right = button_right_last;
+    int8_t dWheel = 0;
     MOUSE_CLICK* click = nullptr;
 
     if (!m_click_events.isEmpty())
@@ -55,6 +52,7 @@ uint8_t *N5PMouseRptParser::GetMouseData()
         click = m_click_events.dequeue();
         button_left = click->bmLeftButton;
         button_right = click->bmRightButton;
+        dWheel = click->dWheel;
     }
 
     // Bit 0 = Left Button Status; 0=down
@@ -70,6 +68,11 @@ uint8_t *N5PMouseRptParser::GetMouseData()
     uint8_t move_x, move_y;
     move_x = AdjustMovement(m_x);
     move_y = AdjustMovement(m_y);
+
+    if (move_x == 0 && move_y == 0)
+        m_moved = false;
+    else
+        m_moved = true;
 
     // Bits 7-1 = Y move Counts (Two's compliment. Negative = up, positive = down)
     data[N5P_MOUSE_X_IDX] |= move_x << 1;
@@ -89,4 +92,10 @@ uint8_t *N5PMouseRptParser::GetMouseData()
 
     m_processed = true;
     return data;
+}
+
+bool N5PMouseRptParser::MouseChanged()
+{
+    bool changed = m_moved || !m_click_events.isEmpty();
+    return changed;
 }

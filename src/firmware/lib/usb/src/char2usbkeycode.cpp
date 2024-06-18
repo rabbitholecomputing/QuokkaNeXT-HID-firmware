@@ -146,20 +146,18 @@ usbkey_t char_to_usb_keycode(char character)
         key.shift_down = true;
         return key;
     }
-
-    if (character == '<')
-    {
-        key.keycode = USB_KEY_COMMA;
-        key.shift_down = true;
-        return key;
-    }
     if (character == '>')
     {
         key.keycode = USB_KEY_DOT;
         key.shift_down = true;
         return key;
     }
-
+    if (character == '\'')
+    {
+        key.keycode = USB_KEY_APOSTROPHE;
+        key.shift_down = false;
+        return key;
+    }
     key.keycode = 0;
     key.shift_down = false;
     return key;

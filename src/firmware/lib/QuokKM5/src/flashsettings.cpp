@@ -31,6 +31,8 @@
 
 extern RP2040 rp2040;
 
+FlashSettings setting_storage;
+
 void FlashSettings::init()
 {
     // Get Flash info
@@ -45,14 +47,14 @@ void FlashSettings::init()
     // Read initial settings
     uint8_t* setting_buffer = read_settings_page();
     
-    if (((uint16_t*)setting_buffer)[0] == QUOKKADB_SETTINGS_MAGIC_NUMBER) 
+    if (((uint16_t*)setting_buffer)[0] == QUOKKM5_SETTINGS_MAGIC_NUMBER) 
     {
         memcpy((void*)&_settings, setting_buffer, FLASH_PAGE_SIZE);
     }
     else
     {
         // set default values
-        _settings.magic_number = QUOKKADB_SETTINGS_MAGIC_NUMBER;
+        _settings.magic_number = QUOKKM5_SETTINGS_MAGIC_NUMBER;
         reset();
     }
 }
@@ -67,9 +69,11 @@ void FlashSettings::clear()
 
 void FlashSettings::reset()
 {
-    _settings.led_on = 1;
+    _settings.led_enabled = 1;
     _settings.swap_modifiers = 0;
     _settings.sensitivity_divisor = DEFAULT_MOUSE_SENSITIVITY_DIVISOR;
+    _settings.swap_mouse_wheel_axis = 0;
+    _settings.mouse_wheel_count = 1;
 }
 
 void FlashSettings::write_settings_page(uint8_t *buf)

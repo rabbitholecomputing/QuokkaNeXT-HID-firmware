@@ -29,13 +29,6 @@
 
 extern bool global_debug;
 
-bool MouseRptParser::MouseChanged()
-{
-    bool changed = m_ready || !m_click_events.isEmpty();
-    m_ready = false;
-    return changed;
-}
-
 void MouseRptParser::OnMouseMove(MOUSEINFO *mi)
 {
     if (global_debug)
@@ -59,12 +52,6 @@ void MouseRptParser::OnLeftButtonDown(MOUSEINFO *mi)
     if (global_debug)
     {
         Logmsg.println("L Bttn Dn");
-    }
-    MOUSE_CLICK* click = new MOUSE_CLICK;
-    click->bmLeftButton = true;
-    if (!m_click_events.enqueue(click))
-    {
-        Logmsg.println("Warning! unable to enqueue Click Down");
     }
 };
 void MouseRptParser::OnRightButtonUp(MOUSEINFO *mi)

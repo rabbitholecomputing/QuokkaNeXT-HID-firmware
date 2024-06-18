@@ -32,7 +32,6 @@
 class MouseRptParser : public PlatformMouseParser
 {
 public:
-    bool MouseChanged();
     int32_t GetDeltaX();
     int32_t GetDeltaY();
     bool MouseButtonIsPressed();
@@ -50,8 +49,6 @@ protected:
     inline bool IsRightButtonPressed(){return m_mouse_right_button_is_pressed;}
 
 private:
-    int8_t m_movedx = 0;
-    int8_t m_movedy = 0;
     bool m_mouse_left_button_is_pressed = false;
     bool m_mouse_right_button_is_pressed = false;
     bool m_mouse_button_changed = false;

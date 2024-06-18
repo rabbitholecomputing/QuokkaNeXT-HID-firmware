@@ -37,7 +37,7 @@
 
 using simple_circular_queue::SCQueue;
 
-#define KEYBOARD_QUEUE_CAPACITY (20)
+#define KEYBOARD_QUEUE_CAPACITY (256) // enough to hold automated key press (mouse wheel, etc)
 
 class KeyEvent
 {

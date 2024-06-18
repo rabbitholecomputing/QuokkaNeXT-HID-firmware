@@ -27,16 +27,18 @@
 #include <stdint.h>
 #include <hardware/flash.h>
 
-#define QUOKKADB_SETTINGS_MAGIC_NUMBER 0x71DE
+#define QUOKKM5_SETTINGS_MAGIC_NUMBER 0x1337
 
-struct __attribute((packed)) QuokkADBSettings 
+struct __attribute((packed)) QuokKM5Settings 
 {
     uint16_t magic_number;
-    uint8_t led_on: 1;
+    uint8_t led_enabled: 1;
     uint8_t swap_modifiers: 1;
-    uint8_t reserved_bits: 6;
+    uint8_t swap_mouse_wheel_axis: 1;
+    uint8_t reserved_bits: 5;
     uint8_t sensitivity_divisor;
-    uint8_t reserved_bytes[252];
+    int8_t mouse_wheel_count;
+    uint8_t reserved_bytes[251];
 };
 
 class FlashSettings
@@ -55,12 +57,13 @@ public:
     // reset in memory settings to defaults
     void reset();
 
-    inline QuokkADBSettings* settings() {return &_settings;}
+    inline QuokKM5Settings* settings() {return &_settings;}
 private:
     uint32_t _capacity = 0;
     uint32_t _last_sector = 0;
     bool m_save_requested = false;
     bool m_clear_requested = false;
-    QuokkADBSettings _settings;
+    QuokKM5Settings _settings;
 };
 
+extern FlashSettings setting_storage;

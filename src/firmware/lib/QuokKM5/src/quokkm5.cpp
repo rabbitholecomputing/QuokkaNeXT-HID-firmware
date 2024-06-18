@@ -61,18 +61,16 @@ extern uint8_t mousesrq;
 extern uint32_t kbskiptimer;
 extern uint16_t modifierkeys;
 extern bool n5p_reset;
-extern bool mouse_flush;
-extern bool kbd_flush;
 bool usb_reset = false;
 bool usb_mouse_reset = false;
 bool usb_kbd_reset = false;
+static bool g_first_reset = false;
 bool global_debug = false;
 
 PlatformInterface n5p;
 
 N5PKbdRptParser KeyboardPrs;
 N5PMouseRptParser MousePrs(KeyboardPrs);
-FlashSettings setting_storage;
 
 /*------------ Pre Core0 and Core1 setup ------------*/
 void initVariant() 
@@ -91,65 +89,28 @@ void setup()
   Serial1.begin();
   Logmsg.println(PLATFORM_FW_VER_STRING);
   n5p.init();
+  g_first_reset = false;
 }
 
 /*------------ Core0 main loop ------------*/
 void loop()
 {
   static bool first_loop = true;
+
   if (first_loop)
   {
     first_loop = false;
     n5p.blockUntilResetCmd();
+    g_first_reset = true;
   }
 
   N5PCommand cmd = N5PCommand::None;
 
-  // if (!kbdpending)
-  // {
-  //   if (KeyboardPrs.PendingKeyboardEvent())
-  //   {
-  //    // process keyboard events
-  //     kbdpending = 1;
-  //   }
-  // }
-  
-  // if (!mousepending)
-  // {
-  //   if (MousePrs.MouseReady())
-  //   {
-  //     //process mouse events
-  //     mousepending = 1;
-  //   }
-  // }
-  //NEXT_OUT_LOW();
   cmd =  n5p.ReceiveCommand();
-  //NEXT_OUT_HIGH();
+  if (KeyboardPrs.PendingKeyboardEvent() || MousePrs.MouseChanged())
+    blink_led.led_on();
   n5p.ProcessCommand(cmd);
-
-  // if (n5p_reset)
-  // {
-  //   n5p.Reset();
-  //   n5p_reset = false;
-  //   usb_reset = true;
-  //   if (global_debug)
-  //   {
-  //     Logmsg.println("ALL: Resetting devices");
-  //   }
-  // } 
-
-  
-  // if (mouse_flush)
-  // {
-  //   usb_mouse_reset = true;
-  //   mouse_flush = false;
-  // }
-
-  // if (kbd_flush)
-  // {
-  //   usb_kbd_reset = true;
-  //   kbd_flush = false;
-  // }
+  blink_led.led_off();
 }
 
 
@@ -168,24 +129,12 @@ void loop1()
   blink_led.poll();
   log_poll();
   
-  // KeyboardPrs.ChangeUSBKeyboardLEDs();
+  KeyboardPrs.ChangeUSBKeyboardLEDs();
 
-  // if (n5p_reset)
-  // {
-  //   KeyboardPrs.Reset();
-  //   MousePrs.Reset();
-  // }
-
-  // if (usb_mouse_reset)
-  // {
-  //   MousePrs.Reset();
-  //   usb_mouse_reset = false;
-  // }
-
-  // if (usb_kbd_reset)
-  // {
-  //   KeyboardPrs.Reset();
-  //   usb_kbd_reset = false;
-  // }
-
+  if (g_first_reset)
+  {
+    g_first_reset = false;
+    KeyboardPrs.Reset();
+    MousePrs.Reset();
+  }
 }

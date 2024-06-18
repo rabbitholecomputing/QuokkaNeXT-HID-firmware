@@ -31,10 +31,11 @@ class N5PMouseRptParser : public MouseRptParser
 {
 public:
     N5PMouseRptParser(N5PKbdRptParser& kbd_parser);
-    bool MouseReady();
     uint8_t *GetMouseData();
+    bool MouseChanged();
 
 protected:
     bool Accumulate(int8_t usb_move, int32_t &adb_move, int32_t &accumulator);
+    bool m_moved;
 
 };

@@ -26,10 +26,8 @@
 #include "bithacks.h"
 #include "next_5pin_keys.h"
 #include "usb_hid_keys.h"
-
-// #ifdef QUOKKADB
 #include "platform_logmsg.h"
-// #endif
+
 
 extern bool global_debug;
 
@@ -52,12 +50,9 @@ void KbdRptParser::Reset(void)
         delete(m_keyboard_events.dequeue());
     }
 
-    // QuokkADB handles keyboard LEDs directly
-    // ADBuino toggles LEDs status via keypress
-    #ifdef QUOKKADB
     kbdLockingKeys.bLeds = 0x00;
     SetUSBkeyboardLEDs(false, false, false);
-    #endif 
+
 }
 
 void KbdRptParser::PrintKey(uint8_t m, uint8_t key)
@@ -70,11 +65,7 @@ void KbdRptParser::PrintKey(uint8_t m, uint8_t key)
     Logmsg.print((mod.bmLeftGUI == 1) ? "G" : " ");
 
     Logmsg.print(" >");
-    #ifdef ADBIUNO
-        PrintHex<uint8_t>(key, 0x80);
-    #elif QUOKKADB
-        Logmsg.print(key, fmtHEX);
-    #endif
+    Logmsg.print(key, fmtHEX);
     Logmsg.print("< ");
 
     Logmsg.print((mod.bmRightCtrl == 1) ? "C" : " ");

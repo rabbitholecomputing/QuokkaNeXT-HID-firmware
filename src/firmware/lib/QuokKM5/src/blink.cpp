@@ -26,6 +26,7 @@
 #include "blink.h"
 #include "platform_gpio.h"
 #include "platform_interface.h"
+#include "flashsettings.h"
 
 extern "C" uint32_t millis();
 
@@ -41,7 +42,7 @@ bool BlinkLed::blink(uint8_t times, uint32_t delay_ms)
 
 void BlinkLed::led_on(bool force)
 {
-    if (force || !blinking)
+    if (setting_storage.settings()->led_enabled && (force || !blinking ))
     {
         LED_ON();
     }
@@ -49,7 +50,7 @@ void BlinkLed::led_on(bool force)
 
 void BlinkLed::led_off(bool force)
 {
-    if (force || !blinking)
+    if (setting_storage.settings()->led_enabled && (force || !blinking))
     {
         LED_OFF();
     }
@@ -69,7 +70,7 @@ void BlinkLed::poll()
         current_event = blink_queue.dequeue();
         delay_period = current_event->delay_ms;
         start_delay = millis();
-        LED_ON();
+        led_on(true);
         on_phase = true;
         blinking = true;
         blinked = 0;
@@ -90,7 +91,7 @@ void BlinkLed::poll()
             else if (on_phase)
             {
                 on_phase = false;
-                LED_OFF();
+                led_off(true);
                 start_delay = millis();
                 if (blinked + 1 >= current_event->times)
                 {
@@ -102,7 +103,7 @@ void BlinkLed::poll()
             {
                 blinked++;
                 on_phase = true;
-                LED_ON();
+                led_on(true);
                 start_delay = millis();
             }
         }
