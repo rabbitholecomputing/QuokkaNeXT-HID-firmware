@@ -64,7 +64,7 @@ extern bool n5p_reset;
 bool usb_reset = false;
 bool usb_mouse_reset = false;
 bool usb_kbd_reset = false;
-static bool g_first_reset = false;
+bool g_first_reset = false;
 bool global_debug = false;
 
 PlatformInterface n5p;
@@ -76,6 +76,7 @@ N5PMouseRptParser MousePrs(KeyboardPrs);
 void initVariant() 
 { 
   led_gpio_init();
+  next_pwr_gpio_init();
   setting_storage.init();
 }
 

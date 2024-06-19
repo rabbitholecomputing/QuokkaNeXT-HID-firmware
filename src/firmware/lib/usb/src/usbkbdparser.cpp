@@ -24,7 +24,6 @@
 #include <Arduino.h>
 #include "usbkbdparser.h"
 #include "bithacks.h"
-#include "next_5pin_keys.h"
 #include "usb_hid_keys.h"
 #include "platform_logmsg.h"
 
@@ -90,63 +89,13 @@ void KbdRptParser::OnKeyDown(uint8_t mod, uint8_t key)
     if (c)
         OnKeyPressed(c);
 
-    // Special handling of Caps Lock because of its held down nature
-    if (key == USB_KEY_CAPSLOCK)
+    if (key == USB_KEY_F15 || key == USB_KEY_INSERT || key == USB_KEY_HELP)
     {
-        if (kbdLockingKeys.kbdLeds.bmCapsLock == 1)
-        {
-            B_UNSET(m_custom_mod_keys, CapsLockFlag);
-            B_UNSET(m_custom_mod_keys, Led2CapsLockFlag);
-            if (!m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyDown, mod)))
-            {
-                Logmsg.println("Warning! unable to queue caps lock down");
-            }
-        }
-        else
-        {
-            B_SET(m_custom_mod_keys, CapsLockFlag);
-            B_SET(m_custom_mod_keys, Led2CapsLockFlag);
-            if (!m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyUp, mod)))
-            {
-                Logmsg.println("Warning! unable to queue caps lock up");
-            }
-        }        
+        PowerButton(true);
     }
     else if (!m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyDown, mod)))
     {
         Logmsg.println("Warning! unable to enqueue new KeyDown");
-    }
-
-    if (key == USB_KEY_NUMLOCK)
-    {
-        if (kbdLockingKeys.kbdLeds.bmNumLock == 1)
-        {
-            B_SET(m_custom_mod_keys, NumLockFlag);
-            B_SET(m_custom_mod_keys, Led1NumLockFlag);
-        }
-        else
-        {
-            B_UNSET(m_custom_mod_keys, NumLockFlag);
-            B_UNSET(m_custom_mod_keys, Led1NumLockFlag);
-        }        
-    }
-    if (key == USB_KEY_SCROLLLOCK)
-    {
-        if (kbdLockingKeys.kbdLeds.bmScrollLock == 1)
-        {
-            B_SET(m_custom_mod_keys, ScrollLockFlag);
-            B_SET(m_custom_mod_keys, Led3ScrollLockFlag);
-        }
-        else
-        {
-            B_UNSET(m_custom_mod_keys, ScrollLockFlag);
-            B_UNSET(m_custom_mod_keys, Led3ScrollLockFlag);
-        }        
-    }
-
-    if (key == USB_KEY_BACKSPACE)
-    {
-        B_SET(m_custom_mod_keys, DeleteFlag);
     }
 }
 
@@ -161,19 +110,15 @@ void KbdRptParser::OnKeyUp(uint8_t mod, uint8_t key)
         Logmsg.print("UP ");
         PrintKey(mod, key);
     }
-    if (key != USB_KEY_CAPSLOCK)
-    {
-        if (!m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyUp, mod)))
-        {
-            Logmsg.println("Warning! unable to enqueue new KeyDown");
-        }
     
-        if (key == USB_KEY_BACKSPACE)
-        {
-            B_UNSET(m_custom_mod_keys, DeleteFlag);
-        }
+    if (key == USB_KEY_F15 || key == USB_KEY_INSERT || key == USB_KEY_HELP)
+    {
+        PowerButton(false);
     }
-
+    else if (!m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyUp, mod)))
+    {
+        Logmsg.println("Warning! unable to enqueue new KeyDown");
+    }
 }
 
 void KbdRptParser::OnControlKeysChanged(uint8_t before, uint8_t after)

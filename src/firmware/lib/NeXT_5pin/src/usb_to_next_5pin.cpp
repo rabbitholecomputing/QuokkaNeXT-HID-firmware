@@ -196,20 +196,24 @@ uint8_t usb_keycode_to_n5p_code(uint8_t usb_code)
         return N5P_KEYCODE_KP8;
     case USB_KEY_KP9:
         return N5P_KEYCODE_KP9;
+    case USB_KEY_F2:
+        return N5P_KEYCODE_VOLDOWN;
     case USB_KEY_F3:
         return N5P_KEYCODE_VOLUP;
     case USB_KEY_F11:
         return N5P_KEYCODE_BRIGHTDOWN;
     case USB_KEY_F12:
         return N5P_KEYCODE_BRIGHTUP;
-    case USB_KEY_F15:
-    case USB_KEY_INSERT: // fall through to Help
-    case USB_KEY_HELP:
-        return N5P_KEYCODE_POWER;
     case USB_KEY_F1:
         return N5P_KEYCODE_MUTE;
 
 
+/* Power key trapped at USB scancode level
+    case USB_KEY_F15:
+    case USB_KEY_INSERT: // fall through to Help
+    case USB_KEY_HELP:
+        return N5P_KEYCODE_POWER;
+*/
 
 /* Currently not assigned to anything
      case USB_KEY_F5:
@@ -239,8 +243,7 @@ uint8_t usb_keycode_to_n5p_code(uint8_t usb_code)
         return 0x76;
     case USB_KEY_END:
         return 0x77;
-    case USB_KEY_F2:
-        return N5P_KEYCODE_VOLDOWN;
+
     case USB_KEY_PAGEDOWN:
         return 0x79; */
 

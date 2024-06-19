@@ -24,12 +24,6 @@
 #pragma once
 
 #include "usbkbdparser.h"
-#ifdef ADBUINO
-#include <hidboot.h>
-#elif QUOKKADB
-#include "platformkbdparser.h"
-#endif
-
 #include "scqueue.h"
 
 #define ADB_POWER_KEYCODE 0x7f

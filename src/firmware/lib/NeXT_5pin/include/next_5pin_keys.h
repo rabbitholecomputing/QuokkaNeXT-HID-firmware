@@ -36,14 +36,14 @@
 //  1   = Left Shift
 //  0   = Control
 
-#define N5P_MOD_NOT_ONLY     7
-#define N5P_MOD_KEY_RALT     6 
-#define N5P_MOD_KEY_LALT     5
-#define N5P_MOD_KEY_RCOMMAND 4
-#define N5P_MOD_KEY_LCOMMAND 3
-#define N5P_MOD_KEY_RSHIFT   2
-#define N5P_MOD_KEY_LSHIFT   1
-#define N5P_MOD_KEY_CONTROL  0
+#define N5P_MOD_NOT_ONLY     0x80
+#define N5P_MOD_KEY_RALT     0x40
+#define N5P_MOD_KEY_LALT     0x20
+#define N5P_MOD_KEY_RCOMMAND 0x10
+#define N5P_MOD_KEY_LCOMMAND 0x08
+#define N5P_MOD_KEY_RSHIFT   0x04
+#define N5P_MOD_KEY_LSHIFT   0x02
+#define N5P_MOD_KEY_CONTROL  0x01
 
 
 // These are the faux keycodes for matching 

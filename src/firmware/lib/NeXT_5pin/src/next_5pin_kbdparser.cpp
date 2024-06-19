@@ -74,13 +74,23 @@ uint8_t* N5PKbdRptParser::GetKey()
     MODIFIERKEYS modifier_keys = *((MODIFIERKEYS*)(&modifiers_usb));
 
     if (modifier_keys.bmLeftCtrl || modifier_keys.bmRightCtrl) 
-                                      B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_CONTROL);
-    if (modifier_keys.bmLeftShift)  B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_LSHIFT);
-    if (modifier_keys.bmRightShift) B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_RSHIFT);
-    if (modifier_keys.bmLeftAlt)    B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_LCOMMAND);
-    if (modifier_keys.bmRightAlt)   B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_RCOMMAND);
-    if (modifier_keys.bmLeftGUI)    B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_LALT);
-    if (modifier_keys.bmRightGUI)   B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_KEY_RALT);
+                                     key_packet[N5P_MOD_KEY_IDX] |=  N5P_MOD_KEY_CONTROL;
+    if (modifier_keys.bmLeftShift)  key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_KEY_LSHIFT;
+    if (modifier_keys.bmRightShift) key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_KEY_RSHIFT;
+    if (modifier_keys.bmLeftAlt)    key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_KEY_LCOMMAND;
+    if (modifier_keys.bmRightAlt)   key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_KEY_RCOMMAND;
+    if (modifier_keys.bmLeftGUI)    key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_KEY_LALT;
+    if (modifier_keys.bmRightGUI)   key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_KEY_RALT;
+
+    if ((0x7F & n5p_keycode) == N5P_KEYCODE_MUTE)
+    {
+        n5p_keycode &= ~0x7F;
+        n5p_keycode |= N5P_KEYCODE_VOLDOWN;
+        if (!(key_packet[N5P_MOD_KEY_IDX] & (N5P_MOD_KEY_LCOMMAND | N5P_MOD_KEY_RCOMMAND)))
+        {
+            key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_KEY_LCOMMAND;
+        }
+    }
 
     // NeXT keycode is a modifier key
     if ((n5p_keycode & 0x7F) >= N5P_KEYCODE_RALT && (n5p_keycode & 0x7F) <= N5P_KEYCODE_CONTROL)
@@ -89,7 +99,7 @@ uint8_t* N5PKbdRptParser::GetKey()
     }
     else
     {
-        B_SET(key_packet[N5P_MOD_KEY_IDX], N5P_MOD_NOT_ONLY);
+        key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_NOT_ONLY;
         key_packet[N5P_KEYCODE_IDX] = n5p_keycode;
     }
 

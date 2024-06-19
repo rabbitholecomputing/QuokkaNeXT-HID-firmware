@@ -120,13 +120,32 @@ struct KeyboardDevices
 };
 
 class PlatformKbdParser {
-        
-        static const uint8_t numKeys[10];
-        static const uint8_t symKeysUp[12];
-        static const uint8_t symKeysLo[12];
-        static const uint8_t padKeys[5];
+
+public:
+
+        PlatformKbdParser();
+        virtual ~PlatformKbdParser();
+        void Parse(uint8_t dev_addr, uint8_t instance, hid_keyboard_report_t const *report);
+        bool SpecialKeyCombo(KBDINFO *cur_kbd_info);
+        void SendString(const char* message);
+        void AddKeyboard(uint8_t dev_addr, uint8_t instance);
+        void RemoveKeyboard(uint8_t dev_addr, uint8_t instance);
+        // Sets the LEDs to shared memory
+        void SetUSBkeyboardLEDs(bool capslock, bool numlock, bool scrollock);
+        // Executes the LED changes from shared memory (meant to be run on the same core as tuh_task)
+        void ChangeUSBKeyboardLEDs(void);
+
+        void PowerButton(bool down);
+
+        virtual bool PendingKeyboardEvent() = 0;
+
+        virtual void OnKeyDown(uint8_t mod __attribute__((unused)), uint8_t key __attribute__((unused))) = 0;
+
+        virtual void OnKeyUp(uint8_t mod __attribute__((unused)), uint8_t key __attribute__((unused))) = 0;
+        virtual void OnControlKeysChanged(uint8_t before __attribute__((unused)), uint8_t after __attribute__((unused))) = 0;
 
 protected:
+        SCQueue<KeyEvent*, KEYBOARD_QUEUE_CAPACITY> m_keyboard_events; 
 
         union {
                 KBDINFO kbdInfo;
@@ -143,32 +162,6 @@ protected:
         uint8_t OemToAscii(uint8_t mod, uint8_t key);
 
         KeyboardDevices keyboards_list[MAX_KEYBOARDS] = {};
-
-public:
-
-        PlatformKbdParser();
-        virtual ~PlatformKbdParser();
-        void Parse(uint8_t dev_addr, uint8_t instance, hid_keyboard_report_t const *report);
-        bool SpecialKeyCombo(KBDINFO *cur_kbd_info);
-        void SendString(const char* message);
-        void AddKeyboard(uint8_t dev_addr, uint8_t instance);
-        void RemoveKeyboard(uint8_t dev_addr, uint8_t instance);
-        // Sets the LEDs to shared memory
-        void SetUSBkeyboardLEDs(bool capslock, bool numlock, bool scrollock);
-        // Executes the LED changes from shared memory (meant to be run on the same core as tuh_task)
-        void ChangeUSBKeyboardLEDs(void);
-
-        virtual bool PendingKeyboardEvent() = 0;
-
-        virtual void OnKeyDown(uint8_t mod __attribute__((unused)), uint8_t key __attribute__((unused))) = 0;
-
-        virtual void OnKeyUp(uint8_t mod __attribute__((unused)), uint8_t key __attribute__((unused))) = 0;
-        virtual void OnControlKeysChanged(uint8_t before __attribute__((unused)), uint8_t after __attribute__((unused))) = 0;
-
-
-protected:
-        SCQueue<KeyEvent*, KEYBOARD_QUEUE_CAPACITY> m_keyboard_events; 
-        
         uint8_t HandleLockingKeys(uint8_t dev_addr, uint8_t instance, uint8_t key) {
                 uint8_t old_keys = kbdLockingKeys.bLeds;
 
@@ -211,4 +204,10 @@ protected:
         const uint8_t *getPadKeys() {
                 return padKeys;
         };
+
+private:
+        static const uint8_t numKeys[10];
+        static const uint8_t symKeysUp[12];
+        static const uint8_t symKeysLo[12];
+        static const uint8_t padKeys[5];
 };

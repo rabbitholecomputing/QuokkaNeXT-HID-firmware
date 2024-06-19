@@ -44,7 +44,6 @@ uint8_t *N5PMouseRptParser::GetMouseData()
     static bool button_right_last;
     bool button_left = button_left_last;
     bool button_right = button_right_last;
-    int8_t dWheel = 0;
     MOUSE_CLICK* click = nullptr;
 
     if (!m_click_events.isEmpty())
@@ -52,7 +51,6 @@ uint8_t *N5PMouseRptParser::GetMouseData()
         click = m_click_events.dequeue();
         button_left = click->bmLeftButton;
         button_right = click->bmRightButton;
-        dWheel = click->dWheel;
     }
 
     // Bit 0 = Left Button Status; 0=down

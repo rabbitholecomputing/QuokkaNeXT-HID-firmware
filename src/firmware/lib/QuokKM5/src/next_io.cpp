@@ -41,6 +41,8 @@ static PIO g_next_io_rx_pio, g_next_io_tx_pio;
 static bool g_next_io_rx_error = false;
 static bool g_next_io_tx_done = true;
 
+extern bool g_first_reset;
+
 extern "C" void isr_pio_rx_error()
 {
     pio_interrupt_clear(g_next_io_rx_pio, 0);
@@ -180,7 +182,10 @@ rx_error:
 }
 void NeXTIO::waitForReset()
 {
-    while (receiveCmd() != N5PCommand::Reset);
+    while (receiveCmd() != N5PCommand::Reset)
+    {
+        g_first_reset = true;
+    }
 }
 
 bool NeXTIO::readyToTransmit()

@@ -36,14 +36,25 @@
 #include <hardware/uart.h>
 #include <hardware/clocks.h>
 
-void led_gpio_init(void) {
+void led_gpio_init(void)
+{
     gpio_init(LED_GPIO);
     gpio_set_function(LED_GPIO, GPIO_FUNC_SIO);
     gpio_set_dir(LED_GPIO, GPIO_OUT);
     LED_OFF();
 }
 
-void uart_gpio_init(void) {
+void next_pwr_gpio_init(void)
+{
+    gpio_init(NEXT_POWER_GPIO);
+    gpio_put(NEXT_POWER_GPIO, true);
+    gpio_disable_pulls(NEXT_POWER_GPIO);
+    gpio_set_function(NEXT_POWER_GPIO, GPIO_FUNC_SIO);
+    gpio_set_dir(NEXT_POWER_GPIO, GPIO_OUT);
+}
+
+void uart_gpio_init(void)
+{
     uart_init(UART_PORT, UART_TX_BAUD);
     gpio_set_function(UART_TX_GPIO, GPIO_FUNC_UART);
 }

@@ -51,14 +51,17 @@
 #define NEXT_OUT_BIT_CLK_DIV 7200 / 2
 
 #define NEXT_IN_GPIO   1
-#define NEXT_IN_GET() (gpio_get(NEXT_IN_GPIO))
 #define NEXT_IN_UART_CLK_DIV 900
+
+#define NEXT_POWER_GPIO     22
+#define POWER_BUTTON_DOWN() gpio_put(NEXT_POWER_GPIO, false)
+#define POWER_BUTTON_UP()   gpio_put(NEXT_POWER_GPIO, true)
 
 // UART out messaging
 #define UART_TX_GPIO    16
 #define UART_TX_BAUD    115200
 #define UART_PORT       uart0
 
-void next_io_init(void);
+void next_pwr_gpio_init(void);
 void uart_gpio_init(void);
 void led_gpio_init(void);

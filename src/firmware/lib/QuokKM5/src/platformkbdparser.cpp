@@ -1,10 +1,11 @@
 //----------------------------------------------------------------------------
 //
-//  QuokkADB ADB keyboard and mouse adapter
+//  QuokkKM5 non-ADB keyboard and mouse adapter
 //     Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
-//     Copyright (C) 2022 Rabbit Hole Computing LLC
+//     Copyright (C) 2022-2024 Rabbit Hole Computing LLC
 //
-//  This file is part of QuokkADB.
+//  This file is part of QuokKM5.
+//
 //
 //  This file is free software: you can redistribute it and/or modify it under
 //  the terms of the GNU General Public License as published by the Free
@@ -32,6 +33,7 @@
 #include "flashsettings.h"
 #include <tusb.h>
 #include "platform_logmsg.h"
+#include "platform_gpio.h"
 #include "blink.h"
 
 #define VALUE_WITHIN(v, l, h) (((v) >= (l)) && ((v) <= (h)))
@@ -233,17 +235,17 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
                     "(V): print firmware version\n"
                     "(S): save settings to flash - LED blinks %d times\n"
                     "(R): remove settings from flash - LED blinks %d times\n"
-                    "(K): swap alt and command key positions\n"
+                    "(K): swap alt and command key positions - LED blinks thrice\n"
                     "(L): toggle status LED On/Off\n"
-                    "(+): increase sensitivity - LED blinks divisor count\n"
-                    "(-): decrease sensitivity - LED blinks divisor count\n"
+                    "(+): increase sensitivity - LED blinks twice\n"
+                    "(-): decrease sensitivity - LED blink once\n"
                     "\n"
                     "Change mouse wheel count 'x' by one with '[' or ']'\n"
                     "If positive press the up/down arrow 'x' times for each wheel movement\n"
                     "If negative divide the mouse wheel movement by 'abs(x)'\n"
                     "(]): increase the mouse wheel count - LED blinks twice\n"
-                    "([): decrease the mouse wheel count - LED blinks once\n"
-                    "(W): flip mouse wheel axis\n"
+                    "([): decrease the mouse wheel count - LED blink once\n"
+                    "(W): flip mouse wheel axis - LED blinks thrice\n"
                     "Note: not all mice support the mouse wheel in HID boot protocol"
                     ,
                     setting_storage.settings()->swap_modifiers ? ON_STRING : OFF_STRING,
@@ -265,6 +267,7 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
             break;
         case USB_KEY_K:
             setting_storage.settings()->swap_modifiers ^= 1;
+            blink_led.blink(3);
             break;
         case USB_KEY_L:
             setting_storage.settings()->led_enabled ^= 1;
@@ -275,7 +278,7 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
                 setting_storage.settings()->sensitivity_divisor = 1;
             else
                 setting_storage.settings()->sensitivity_divisor--;
-            blink_led.blink(setting_storage.settings()->sensitivity_divisor);
+            blink_led.blink(2);
             break;
         case USB_KEY_KPMINUS:
         case USB_KEY_MINUS:
@@ -283,7 +286,7 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
                 setting_storage.settings()->sensitivity_divisor = 16;
             else
                 setting_storage.settings()->sensitivity_divisor++;
-            blink_led.blink(setting_storage.settings()->sensitivity_divisor);
+            blink_led.blink(1);
             break;
         case USB_KEY_LEFTBRACE:
             if (setting_storage.settings()->mouse_wheel_count > -8)
@@ -301,6 +304,7 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
             break;
         case USB_KEY_W:
             setting_storage.settings()->swap_mouse_wheel_axis ^= 1;
+            blink_led.blink(3);
             break;
         }
 
@@ -411,6 +415,15 @@ void PlatformKbdParser::ChangeUSBKeyboardLEDs(void)
             break;
         }
     }
+}
+
+
+void PlatformKbdParser::PowerButton(bool down)
+{
+    if (down)
+        POWER_BUTTON_DOWN();
+    else
+        POWER_BUTTON_UP();
 }
 
 const uint8_t PlatformKbdParser::numKeys[10] = {'!', '@', '#', '$', '%', '^', '&', '*', '(', ')'};
