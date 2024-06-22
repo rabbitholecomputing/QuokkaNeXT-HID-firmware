@@ -27,8 +27,10 @@
 #include "usb_hid_keys.h"
 #include "platform_logmsg.h"
 
-
+extern "C" uint32_t millis();
 extern bool global_debug;
+
+#define ENQUEUE_RETRY_TIMEOUT 3000
 
 KbdRptParser::KbdRptParser()
 {
@@ -95,7 +97,23 @@ void KbdRptParser::OnKeyDown(uint8_t mod, uint8_t key)
     }
     else if (!m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyDown, mod)))
     {
-        Logmsg.println("Warning! unable to enqueue new KeyDown");
+        if (global_debug)
+            Logmsg.println("Warning! unable to enqueue new KeyDown");
+
+        uint32_t start = millis();
+        bool success = false;
+        while((uint32_t)(millis() - start) < ENQUEUE_RETRY_TIMEOUT)
+        {
+            if (m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyDown, mod)))
+            {
+                success = true;
+                break;
+            }
+        }
+        if (!success)
+        {
+            Logmsg.println("Warning! Timeout, unable to enqueue new KeyDown after retrying");
+        }
     }
 }
 
@@ -110,14 +128,30 @@ void KbdRptParser::OnKeyUp(uint8_t mod, uint8_t key)
         Logmsg.print("UP ");
         PrintKey(mod, key);
     }
-    
+
     if (key == USB_KEY_F15 || key == USB_KEY_INSERT || key == USB_KEY_HELP)
     {
         PowerButton(false);
     }
     else if (!m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyUp, mod)))
     {
-        Logmsg.println("Warning! unable to enqueue new KeyDown");
+        if (global_debug)
+            Logmsg.println("Warning! unable to enqueue new KeyUp, retrying");
+
+        uint32_t start = millis();
+        bool success = false;
+        while((uint32_t)(millis() - start) < ENQUEUE_RETRY_TIMEOUT)
+        {
+            if (m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyUp, mod)))
+            {
+                success = true;
+                break;
+            }
+        }
+        if (!success)
+        {
+            Logmsg.println("Warning! Timeout, unable to enqueue new KeyUp after retrying");
+        }
     }
 }
 

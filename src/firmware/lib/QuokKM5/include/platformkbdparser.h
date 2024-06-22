@@ -117,6 +117,7 @@ struct KeyboardDevices
   uint8_t device_addr;
   uint8_t instance;
   bool in_use;
+  bool supports_leds;
 };
 
 class PlatformKbdParser {

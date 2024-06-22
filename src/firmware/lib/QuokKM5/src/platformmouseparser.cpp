@@ -37,6 +37,8 @@
 #include "blink.h"
 #include "math.h"
 
+#define ENQUEUE_RETRY_TIMEOUT 3000
+extern "C" uint32_t millis();
 extern FlashSettings setting_storage;
 
 int8_t PlatformMouseParser::AdjustMovement(int32_t& axis)
@@ -169,9 +171,21 @@ void PlatformMouseParser::Parse(const hid_mouse_report_t *report){
         click->bmMiddleButton = mouse_info.bmMiddleButton;
         click->bmRightButton = mouse_info.bmRightButton;
         click->dWheel = mouse_info.dWheel;
-        if (!m_click_events.enqueue(click))
+
+
+        uint32_t start = millis();
+        bool success = false;
+        while((uint32_t)(millis() - start) < ENQUEUE_RETRY_TIMEOUT)
         {
-            Logmsg.println("Warning! unable to enqueue Left Click event");
+            if (m_click_events.enqueue(click))
+            {
+                success = true;
+                break;
+            }
+        }
+        if (!success)
+        {
+            Logmsg.println("Warning! Timeout, Warning! unable to enqueue Click event after retrying");
         }
     }
     memcpy(prevState.bInfo, &mouse_info, sizeof(prevState.bInfo));

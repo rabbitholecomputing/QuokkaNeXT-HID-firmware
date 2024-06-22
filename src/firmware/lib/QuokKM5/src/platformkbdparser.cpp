@@ -65,6 +65,7 @@ void PlatformKbdParser::AddKeyboard(uint8_t dev_addr, uint8_t instance)
             keyboards_list[i].in_use = true;
             keyboards_list[i].device_addr = dev_addr;
             keyboards_list[i].instance = instance;
+            keyboards_list[i].supports_leds = true;
             SetUSBkeyboardLEDs(kbdLockingKeys.kbdLeds.bmCapsLock,
                                kbdLockingKeys.kbdLeds.bmNumLock,
                                kbdLockingKeys.kbdLeds.bmScrollLock);
@@ -246,7 +247,7 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
                     "(]): increase the mouse wheel count - LED blinks twice\n"
                     "([): decrease the mouse wheel count - LED blink once\n"
                     "(W): flip mouse wheel axis - LED blinks thrice\n"
-                    "Note: not all mice support the mouse wheel in HID boot protocol"
+                    "Note: not all mice support the mouse wheel in HID boot protocol\n"
                     ,
                     setting_storage.settings()->swap_modifiers ? ON_STRING : OFF_STRING,
                     setting_storage.settings()->led_enabled ? ON_STRING : OFF_STRING,
@@ -282,21 +283,29 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
             break;
         case USB_KEY_KPMINUS:
         case USB_KEY_MINUS:
-            if (setting_storage.settings()->sensitivity_divisor >= 16)
-                setting_storage.settings()->sensitivity_divisor = 16;
+            if (setting_storage.settings()->sensitivity_divisor >= 32)
+                setting_storage.settings()->sensitivity_divisor = 32;
             else
                 setting_storage.settings()->sensitivity_divisor++;
             blink_led.blink(1);
             break;
         case USB_KEY_LEFTBRACE:
-            if (setting_storage.settings()->mouse_wheel_count > -8)
+            if (setting_storage.settings()->mouse_wheel_count <= -8)
+            {
+                setting_storage.settings()->mouse_wheel_count = -8;
+            }
+            else
             {
                 setting_storage.settings()->mouse_wheel_count--;
                 blink_led.blink(1);
             }
             break;
         case USB_KEY_RIGHTBRACE:
-            if (setting_storage.settings()->mouse_wheel_count < 10)
+            if (setting_storage.settings()->mouse_wheel_count >= 10)
+            {
+                setting_storage.settings()->mouse_wheel_count = 10;
+            }
+            else
             {
                 setting_storage.settings()->mouse_wheel_count++;
                 blink_led.blink(2);
@@ -371,47 +380,75 @@ void PlatformKbdParser::SendString(const char *message)
 
 void PlatformKbdParser::ChangeUSBKeyboardLEDs(void)
 {
+    const uint8_t max_retries = 3;
+    const uint32_t report_ready_timeout = 3000;
     if (usb_set_leds == false)
         return;
 
-    static size_t i = 0;
+    size_t i = 0;
     static uint8_t usb_kbd_leds = 0;
     // USB HID Keyboard LED bit location 0x1 - numlock, 0x2 - capslock, 0x4 - scrollock
     usb_kbd_leds = kbdLockingKeys.kbdLeds.bmNumLock ? 0x1 : 0;
     usb_kbd_leds |= kbdLockingKeys.kbdLeds.bmCapsLock ? 0x2 : 0;
     usb_kbd_leds |= kbdLockingKeys.kbdLeds.bmScrollLock ? 0x4 : 0;
+    uint8_t try_again = 0;
+    bool ready_to_report = false;
 
     while(true)
     {
-        bool try_again = true;
-        if (set_hid_report_ready && keyboards_list[i].in_use)
+        uint32_t start = millis();
+        while ((uint8_t)(millis() - start) < report_ready_timeout)
         {
-            set_hid_report_ready = false;
-            try_again = false;
-            if (!tuh_hid_set_report(
-                    keyboards_list[i].device_addr,
-                    keyboards_list[i].instance,
-                    0,
-                    HID_REPORT_TYPE_OUTPUT,
-                    &(usb_kbd_leds),
-                    sizeof(usb_kbd_leds)))
+            if (set_hid_report_ready)
             {
-                set_hid_report_ready = true;
-                printf("KBD: tuh_hid_set_report failed, dev addr: %hhx, instance: %hhx\n",
-                    keyboards_list[i].device_addr,
-                    keyboards_list[i].instance);
+                ready_to_report = true;
+                set_hid_report_ready = false;
+                break;
+            }
+            else
+            {
+                tuh_task();
             }
         }
 
-        if (!keyboards_list[i].in_use || !try_again)
+        if (ready_to_report)
         {
+                if (!tuh_hid_set_report(
+                keyboards_list[i].device_addr,
+                keyboards_list[i].instance,
+                0,
+                HID_REPORT_TYPE_OUTPUT,
+                &(usb_kbd_leds),
+                sizeof(usb_kbd_leds)
+                ))
+            {
+                // USB disconnected
+                keyboards_list[i].supports_leds = false;
+                set_hid_report_ready = true;
+                try_again++;
+            }
+            else
+            {
+                ready_to_report = false;
+                try_again = max_retries;
+            }
+
+        }
+        else
+        {
+            ready_to_report = false;
+            try_again = max_retries;
+        }
+
+        if (try_again >= max_retries)
+        {
+            try_again = 0;
             i++;
         }
 
         if (i >= MAX_KEYBOARDS)
         {
             usb_set_leds = false;
-            i = 0;
             break;
         }
     }

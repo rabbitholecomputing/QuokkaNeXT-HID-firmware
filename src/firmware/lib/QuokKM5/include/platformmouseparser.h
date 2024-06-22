@@ -41,7 +41,7 @@ using simple_circular_queue::SCQueue;
 // Queue length if using a machine USB clicker 160
 // Queue length for humans ~ 5
 // Using 10
-#define MOUSE_CLICK_QUEUE_CAPACITY (10)
+#define MOUSE_CLICK_QUEUE_CAPACITY (256)
 
 //----------------------------------------------------------------------------
 // Mouse handler
