@@ -37,7 +37,7 @@ SUFFIX=$(gcc -E utils/version-extractor.cpp -Ilib/QuokKM5/include/ | grep  "suff
 
 for file in $(ls .pio/build/quokkm5/*.bin .pio/build/quokkm5/*.elf .pio/build/quokkm5/*.uf2)
 do
-    NEWNAME=$(echo $file | sed 's|.pio/build/quokkm5/\(.*\)\.\(.*\)|QuokKM5-\1-v'$VERSION'-'$SUFFIX'_'$DATE'_'$COMMIT'.\2|')
+    NEWNAME=$(echo $file | sed 's|.pio/build/quokkm5/\(.*\)\.\(.*\)|Quokka-NeXT-HID-\1-v'$VERSION'-'$SUFFIX'_'$DATE'_'$COMMIT'.\2|')
     echo $file to distrib/$NEWNAME
     cp $file distrib/$NEWNAME
 done

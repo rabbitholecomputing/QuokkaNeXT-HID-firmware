@@ -129,6 +129,7 @@ public:
         void Parse(uint8_t dev_addr, uint8_t instance, hid_keyboard_report_t const *report);
         bool SpecialKeyCombo(KBDINFO *cur_kbd_info);
         void SendString(const char* message);
+        void SendCapsLock();
         void AddKeyboard(uint8_t dev_addr, uint8_t instance);
         void RemoveKeyboard(uint8_t dev_addr, uint8_t instance);
         // Sets the LEDs to shared memory
@@ -164,9 +165,11 @@ protected:
 
         KeyboardDevices keyboards_list[MAX_KEYBOARDS] = {};
         uint8_t HandleLockingKeys(uint8_t dev_addr, uint8_t instance, uint8_t key) {
+/*
                 uint8_t old_keys = kbdLockingKeys.bLeds;
 
                 switch(key) {
+                        // Num lock is used as a standard key '`' (grave)
                         case UHS_HID_BOOT_KEY_NUM_LOCK:
                                 kbdLockingKeys.kbdLeds.bmNumLock = ~kbdLockingKeys.kbdLeds.bmNumLock;
                                 break;
@@ -184,7 +187,7 @@ protected:
                         bool scrolllock = !!(kbdLockingKeys.kbdLeds.bmScrollLock);
                         SetUSBkeyboardLEDs(capslock, numlock, scrolllock);                        
                 }
-
+*/
                 return 0;
         };
 

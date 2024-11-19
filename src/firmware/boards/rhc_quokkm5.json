@@ -33,7 +33,7 @@
   "frameworks": [
     "arduino"
   ],
-  "name": "QUOKKM5",
+  "name": "Quokka NeXT HID",
   "upload": {
     "maximum_ram_size": 270336,
     "maximum_size": 2097152,

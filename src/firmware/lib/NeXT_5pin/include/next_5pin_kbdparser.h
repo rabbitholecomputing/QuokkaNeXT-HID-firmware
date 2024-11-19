@@ -39,5 +39,6 @@ public:
     uint8_t* GetKey();
     N5PKbdRptParser();
     virtual ~N5PKbdRptParser();
-
+protected:
+    bool capslock_to_control_key_down;
 };

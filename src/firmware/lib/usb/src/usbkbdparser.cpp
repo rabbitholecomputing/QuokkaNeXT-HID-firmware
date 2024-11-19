@@ -26,6 +26,7 @@
 #include "bithacks.h"
 #include "usb_hid_keys.h"
 #include "platform_logmsg.h"
+#include "flashsettings.h"
 
 extern "C" uint32_t millis();
 extern bool global_debug;
@@ -91,9 +92,13 @@ void KbdRptParser::OnKeyDown(uint8_t mod, uint8_t key)
     if (c)
         OnKeyPressed(c);
 
-    if (key == USB_KEY_F15 || key == USB_KEY_INSERT || key == USB_KEY_HELP)
+    if (key == USB_KEY_F15 || key == USB_KEY_HOME )
     {
         PowerButton(true);
+    }
+    else if (key == USB_KEY_CAPSLOCK && !setting_storage.settings()->caps_as_control)
+    {
+        SendCapsLock();
     }
     else if (!m_keyboard_events.enqueue(new KeyEvent(key, KeyEvent::KeyDown, mod)))
     {
@@ -129,7 +134,7 @@ void KbdRptParser::OnKeyUp(uint8_t mod, uint8_t key)
         PrintKey(mod, key);
     }
 
-    if (key == USB_KEY_F15 || key == USB_KEY_INSERT || key == USB_KEY_HELP)
+    if (key == USB_KEY_F15 || key == USB_KEY_HOME)
     {
         PowerButton(false);
     }

@@ -44,8 +44,6 @@ uint16_t modifierkeys = 0xFFFF;
 
 bool n5p_reset = false;
 
-volatile bool adb_collision = false; 
-volatile bool collision_detection = false;
 bool mouse_skip_next_listen_reg3 = false;
 bool kbd_skip_next_listen_reg3 = false;
 bool g_global_reset = false; 

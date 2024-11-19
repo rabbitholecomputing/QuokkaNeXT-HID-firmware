@@ -142,16 +142,11 @@ void PlatformKbdParser::Parse(uint8_t dev_addr, uint8_t instance, hid_keyboard_r
         }
         if (!down)
         {
-            HandleLockingKeys(dev_addr, instance, current_state.bInfo[i]);
             OnKeyDown(current_state.bInfo[0], current_state.bInfo[i]);
         }
         if (!up)
         {
-            // Ignore key up on caps lock
-            if (prevState.bInfo[i] != UHS_HID_BOOT_KEY_CAPS_LOCK)
-            {
-                OnKeyUp(current_state.bInfo[0], prevState.bInfo[i]);
-            }
+            OnKeyUp(current_state.bInfo[0], prevState.bInfo[i]);
         }
     }
 
@@ -178,13 +173,13 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
     uint8_t special_key_count = 0;
     uint8_t special_key = 0;
     uint8_t special_keys[] = {
-        USB_KEY_V, USB_KEY_K, USB_KEY_L, USB_KEY_P, 
+        USB_KEY_V, USB_KEY_K, USB_KEY_T, USB_KEY_L, USB_KEY_P, 
         USB_KEY_EQUAL, USB_KEY_MINUS, USB_KEY_KPPLUS, USB_KEY_KPMINUS,
         USB_KEY_LEFTBRACE, USB_KEY_RIGHTBRACE, USB_KEY_W, 
         USB_KEY_S, USB_KEY_R
         };
     uint8_t caps_lock_down = false;
-    char print_buf[1024];
+    char print_buf[2048];
     for (uint8_t i = 0; i < 6; i++)
     {
         if (cur_kbd_info->Keys[i] == USB_KEY_CAPSLOCK)
@@ -224,6 +219,7 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
                     "Current Settings\n"
                     "================\n"
                     "Command <-> Alt key swap: %s\n"
+                    "CapsLock as Control: %s \n"
                     "LED: %s\n"
                     "Mouse Sensitivity Divisor: %u\n"
                     "(higher = less sensitive)\n"
@@ -237,6 +233,7 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
                     "(S): save settings to flash - LED blinks %d times\n"
                     "(R): remove settings from flash - LED blinks %d times\n"
                     "(K): swap alt and command key positions - LED blinks thrice\n"
+                    "(T): switch CapsLock to CapsLock or Control - LED blinks thrice\n"
                     "(L): toggle status LED On/Off\n"
                     "(+): increase sensitivity - LED blinks twice\n"
                     "(-): decrease sensitivity - LED blink once\n"
@@ -250,6 +247,7 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
                     "Note: not all mice support the mouse wheel in HID boot protocol\n"
                     ,
                     setting_storage.settings()->swap_modifiers ? ON_STRING : OFF_STRING,
+                    setting_storage.settings()->caps_as_control ? ON_STRING : OFF_STRING,
                     setting_storage.settings()->led_enabled ? ON_STRING : OFF_STRING,
                     setting_storage.settings()->sensitivity_divisor,
                     setting_storage.settings()->mouse_wheel_count,
@@ -268,6 +266,10 @@ bool PlatformKbdParser::SpecialKeyCombo(KBDINFO *cur_kbd_info)
             break;
         case USB_KEY_K:
             setting_storage.settings()->swap_modifiers ^= 1;
+            blink_led.blink(3);
+            break;
+        case USB_KEY_T:
+            setting_storage.settings()->caps_as_control ^= 1;
             blink_led.blink(3);
             break;
         case USB_KEY_L:
@@ -338,20 +340,6 @@ void PlatformKbdParser::SendString(const char *message)
     OnKeyUp(0, USB_KEY_CAPSLOCK);
     OnKeyUp(0, USB_KEY_LEFTMETA);
     OnKeyUp(0, USB_KEY_RIGHTMETA);
-    if (m_keyboard_events.enqueue(new KeyEvent(USB_KEY_CAPSLOCK, KeyEvent::KeyUp, 0)))
-    {
-        // as HandleLocking keys simply toggles the keyboard LEDs, setting it to 1
-        // forces it to toggle off.
-        kbdLockingKeys.kbdLeds.bmCapsLock = 0;
-        SetUSBkeyboardLEDs(kbdLockingKeys.kbdLeds.bmCapsLock, kbdLockingKeys.kbdLeds.bmNumLock, kbdLockingKeys.kbdLeds.bmScrollLock);
-    }
-    else
-    {
-        if (global_debug)
-        {
-            Logmsg.println("Warning! unable to queue CAPSLOCK key up");
-        }
-    }
     
     while (message[i] != '\0')
     {
@@ -377,7 +365,40 @@ void PlatformKbdParser::SendString(const char *message)
         }
     }
 }
+void PlatformKbdParser::SendCapsLock()
+{
+    uint8_t mod = 0;
+    while (PendingKeyboardEvent());
+    OnKeyUp(0, USB_KEY_LEFTSHIFT);
+    OnKeyUp(0, USB_KEY_RIGHTSHIFT);
+    OnKeyUp(0, USB_KEY_LEFTCTRL);
+    OnKeyUp(0, USB_KEY_RIGHTCTRL);
+    OnKeyUp(0, USB_KEY_LEFTALT);
+    OnKeyUp(0, USB_KEY_RIGHTALT);
+    OnKeyUp(0, USB_KEY_CAPSLOCK);
+    OnKeyUp(0, USB_KEY_LEFTMETA);
+    OnKeyUp(0, USB_KEY_RIGHTMETA);
 
+    while (PendingKeyboardEvent());
+    if (setting_storage.settings()->swap_modifiers)
+    {
+        mod = USB_KEY_MOD_LMETA;
+        OnKeyDown(mod, USB_KEY_LEFTMETA);
+    }
+    else
+    {
+        mod = USB_KEY_MOD_LALT;
+        OnKeyDown(mod, USB_KEY_LEFTALT);
+    }
+    mod |= USB_KEY_MOD_LSHIFT;
+    OnKeyDown(mod, USB_KEY_LEFTSHIFT);
+    mod &= ~ USB_KEY_MOD_LSHIFT;
+    OnKeyUp(mod, USB_KEY_LEFTSHIFT);
+    if (setting_storage.settings()->swap_modifiers)
+        OnKeyUp(0, USB_KEY_LEFTMETA);
+    else
+        OnKeyUp(0, USB_KEY_LEFTALT);
+}
 void PlatformKbdParser::ChangeUSBKeyboardLEDs(void)
 {
     const uint8_t max_retries = 3;

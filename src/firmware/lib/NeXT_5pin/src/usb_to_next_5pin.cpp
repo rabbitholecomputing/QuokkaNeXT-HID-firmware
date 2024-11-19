@@ -144,6 +144,7 @@ uint8_t usb_keycode_to_n5p_code(uint8_t usb_code)
         return N5P_KEYCODE_TAB;
     case USB_KEY_SPACE:
         return N5P_KEYCODE_SPACE;
+    case USB_KEY_NUMLOCK: 
     case USB_KEY_GRAVE:
         return N5P_KEYCODE_KPGRAVE;
     case USB_KEY_BACKSPACE:
@@ -166,8 +167,6 @@ uint8_t usb_keycode_to_n5p_code(uint8_t usb_code)
         return N5P_KEYCODE_KPASTERISK;
     case USB_KEY_KPPLUS:
         return N5P_KEYCODE_KPPLUS;
-    case USB_KEY_NUMLOCK: 
-        return N5P_KEYCODE_NUMLOCK;
     case USB_KEY_KPSLASH:
         return N5P_KEYCODE_KPSLASH;
     case USB_KEY_KPENTER:
@@ -196,22 +195,29 @@ uint8_t usb_keycode_to_n5p_code(uint8_t usb_code)
         return N5P_KEYCODE_KP8;
     case USB_KEY_KP9:
         return N5P_KEYCODE_KP9;
-    case USB_KEY_F2:
+    case USB_KEY_DELETE:
+    case USB_KEY_F2: // fall through for volume
+    case USB_KEY_VOLUMEDOWN:
         return N5P_KEYCODE_VOLDOWN;
-    case USB_KEY_F3:
+    case USB_KEY_INSERT:
+    case USB_KEY_F3: // fall through for volume
+    case USB_KEY_VOLUMEUP:
         return N5P_KEYCODE_VOLUP;
-    case USB_KEY_F11:
+    case USB_KEY_PAGEDOWN: 
+    case USB_KEY_F11: // fall through for brightness
         return N5P_KEYCODE_BRIGHTDOWN;
-    case USB_KEY_F12:
+    case USB_KEY_PAGEUP:
+    case USB_KEY_F12: // fall through for brightness
         return N5P_KEYCODE_BRIGHTUP;
-    case USB_KEY_F1:
+    case USB_KEY_END:
+    case USB_KEY_F1: // fall through for mute keycombo
+    case USB_KEY_MUTE:
         return N5P_KEYCODE_MUTE;
 
 
 /* Power key trapped at USB scancode level
     case USB_KEY_F15:
-    case USB_KEY_INSERT: // fall through to Help
-    case USB_KEY_HELP:
+    case USB_KEY_HOME: // fall through to Help
         return N5P_KEYCODE_POWER;
 */
 
@@ -233,24 +239,10 @@ uint8_t usb_keycode_to_n5p_code(uint8_t usb_code)
         return 0x6D;
     case USB_KEY_PAUSE:
         return 0x71;
-        case USB_KEY_HOME:
-        return 0x73;
-    case USB_KEY_PAGEUP:
-        return 0x74;
-    case USB_KEY_DELETE:
-        return 0x75;
     case USB_KEY_F4:
         return 0x76;
-    case USB_KEY_END:
-        return 0x77;
+*/
 
-    case USB_KEY_PAGEDOWN:
-        return 0x79; */
-
-    // Use PrntScr/Sysrq key or F13 key as Apple Power key
-    case USB_KEY_SYSRQ: // fall through to F13
-    case USB_KEY_F13:
-        return N5P_KEYCODE_POWER;
     case USB_KEY_RIGHTCTRL:
     case USB_KEY_LEFTCTRL:
         return N5P_KEYCODE_CONTROL;

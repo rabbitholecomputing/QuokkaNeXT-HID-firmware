@@ -28,9 +28,6 @@
 #include "platform_gpio.h"
 #include <time.h>
 
-
-extern volatile bool adb_collision;
-extern volatile bool collision_detection;
 extern N5PKbdRptParser KeyboardPrs;
 
 void PlatformInterface::init()

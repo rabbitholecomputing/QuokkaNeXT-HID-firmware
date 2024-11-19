@@ -31,11 +31,12 @@
 // #include "platform_logmsg.h"
 //extern rp2040_serial::RPSerial Logmsg;
 #endif
+#include "flashsettings.h"
 #include <platform_logmsg.h>
 
 extern bool global_debug;
 
-N5PKbdRptParser::N5PKbdRptParser()
+N5PKbdRptParser::N5PKbdRptParser() : capslock_to_control_key_down(false)
 {
 }
 
@@ -53,6 +54,8 @@ uint8_t* N5PKbdRptParser::GetKey()
     uint8_t n5p_keycode = 0;
     bool is_key_up;
     uint8_t modifiers_usb;
+
+
     // Pack the first key event
     if (!m_keyboard_events.isEmpty())
     {
@@ -72,8 +75,22 @@ uint8_t* N5PKbdRptParser::GetKey()
         return key_packet;
     }
     MODIFIERKEYS modifier_keys = *((MODIFIERKEYS*)(&modifiers_usb));
+    // treat caps lock key as control key
+    if ( setting_storage.settings()->caps_as_control)
+    { 
+        if ((n5p_keycode & 0x7F) == N5P_KEYCODE_CAPSLOCK)
+        {
+            capslock_to_control_key_down = !is_key_up;
+            n5p_keycode = (n5p_keycode & ~(0x7F)) | N5P_KEYCODE_CONTROL;
+        }
+    }
+    else
+    {
+        capslock_to_control_key_down = false;
+    }
 
-    if (modifier_keys.bmLeftCtrl || modifier_keys.bmRightCtrl) 
+
+    if (modifier_keys.bmLeftCtrl || modifier_keys.bmRightCtrl || capslock_to_control_key_down) 
                                      key_packet[N5P_MOD_KEY_IDX] |=  N5P_MOD_KEY_CONTROL;
     if (modifier_keys.bmLeftShift)  key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_KEY_LSHIFT;
     if (modifier_keys.bmRightShift) key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_KEY_RSHIFT;
@@ -88,12 +105,11 @@ uint8_t* N5PKbdRptParser::GetKey()
         n5p_keycode |= N5P_KEYCODE_VOLDOWN;
         if (!(key_packet[N5P_MOD_KEY_IDX] & (N5P_MOD_KEY_LCOMMAND | N5P_MOD_KEY_RCOMMAND)))
         {
-            key_packet[N5P_MOD_KEY_IDX] |= N5P_MOD_KEY_LCOMMAND;
+            key_packet[N5P_MOD_KEY_IDX]|= N5P_MOD_KEY_LCOMMAND;
         }
     }
-
     // NeXT keycode is a modifier key
-    if ((n5p_keycode & 0x7F) >= N5P_KEYCODE_RALT && (n5p_keycode & 0x7F) <= N5P_KEYCODE_CONTROL)
+    else if ((n5p_keycode & 0x7F) >= N5P_KEYCODE_RALT && (n5p_keycode & 0x7F) <= N5P_KEYCODE_CONTROL)
     {
         key_packet[N5P_KEYCODE_IDX] = 0x80;
     }
