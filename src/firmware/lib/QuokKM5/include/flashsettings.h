@@ -35,7 +35,8 @@ struct __attribute((packed)) QuokKM5Settings
     uint8_t led_enabled: 1;
     uint8_t swap_modifiers: 1;
     uint8_t swap_mouse_wheel_axis: 1;
-    uint8_t reserved_bits: 5;
+    uint8_t caps_as_control: 1;
+    uint8_t reserved_bits: 4;
     uint8_t sensitivity_divisor;
     int8_t mouse_wheel_count;
     uint8_t reserved_bytes[251];
