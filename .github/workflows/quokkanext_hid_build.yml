@@ -1,11 +1,11 @@
-name: Build QuokKM5 firmware
+name: Build QuokkaNeXT HID firmware
 
 on:
   push:
   workflow_dispatch:
 
 jobs:
-  build_quokkadb:
+  build_quokkanext_hid:
     name: Build firmware on Ubuntu 22.04
     runs-on: ubuntu-22.04
 
@@ -13,7 +13,7 @@ jobs:
       - name: Check out code from GitHub
         uses: actions/checkout@v4
         with:
-          path: quokkm5
+          path: quokkanext_hid
           fetch-depth: "0"
 
       - name: Install packages
@@ -27,26 +27,26 @@ jobs:
 
       - name: Build firmware
         run: |
-          cd quokkm5/src/firmware
-          pio run -ve quokkm5
+          cd quokkanext_hid/src/firmware
+          pio run -ve quokkanext_hid
 
       - name: Rename firmware files
         run: |
-          cd quokkm5/src/firmware
-          utils/rename_quokkm5_binaries.sh
+          cd quokkanext_hid/src/firmware
+          utils/rename_quokkanext_hid_binaries.sh
 
       - name: Upload binaries into build artifacts
         uses: actions/upload-artifact@v4
         with: 
-          path: quokkm5/src/firmware/distrib/*
-          name: QuokKM5 binaries
+          path: quokkanext_hid/src/firmware/distrib/*
+          name: QuokkaNeXT HID binaries
 
       - name: Upload to latest release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: github.ref == 'refs/heads/main'
         run: |
-          cd quokkm5/src/firmware
+          cd quokkanext_hid/src/firmware
           git tag -d latest
           git tag latest
           git push origin --force latest
@@ -59,6 +59,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: |
-          cd quokkm5/src/firmware/distrib
+          cd quokkanext_hid/src/firmware/distrib
           RELEASE=$(basename ${{github.ref}})
-          gh release upload --repo ${GITHUB_REPOSITORY} $RELEASE *
+          gh release upload --repo ${GITHUB_REPOSITORY} $RELEASE *.uf2

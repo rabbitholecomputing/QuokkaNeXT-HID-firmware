@@ -1,9 +1,10 @@
 /**
+ * QuokkaNeXT HID
+ * Copyright (C) 2024 Rabbit Hole Computing LLC
  * QuokkADB
  * Copyright (C) 2022 Rabbit Hole Computing LLC
  * This file is derived from hathach's (tinyusb.org) TinyUSB
  * 
- * 4 October 2022 - Modified by Rabbit Hole Computing LLC
  */
 
 /*
@@ -31,8 +32,8 @@
  *
  */
 
-#ifndef _QUOKKADB_TUSB_CONFIG_H_
-#define _QUOKKADB_TUSB_CONFIG_H_
+#ifndef _QUOKKANEXT_HID_TUSB_CONFIG_H_
+#define _QUOKKANEXT_HID_TUSB_CONFIG_H_
 
 #ifdef __cplusplus
  extern "C" {
@@ -91,4 +92,4 @@
  }
 #endif
 
-#endif /* _QUOKKADB_TUSB_CONFIG_H_ */
+#endif /* _QUOKKANEXT_HID_TUSB_CONFIG_H_ */

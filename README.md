@@ -1,15 +1,15 @@
 
-# Quokka NeXT HID
-Quokka NeXT HID is an USB keyboard and mouse to 5-pin non-ADB NeXT input interface. It bridges
+# QuokkaNext HID
+QuokkaNext HID is an USB keyboard and mouse to 5-pin non-ADB NeXT input interface. It bridges
  a USB keyboard and mouse to a NeXT machine via a Soundbox or NeXT monitor as an input alternative 
  to a native NeXT keyboard and mouse.
 
 # How to use
- 1. Attach any USB keyboards/mice to your Quokka NeXT HID.
- 2. The Quokka NeXT HID can be powered two ways. From the NeXT machine or via the USB-C port.
+ 1. Attach any USB keyboards/mice to your QuokkaNext HID.
+ 2. The QuokkaNext HID can be powered two ways. From the NeXT machine or via the USB-C port.
     - When powered by the USB-C port, the button assigned to power on the keyboard can turn on the NeXT machine.
-    - When powered via the NeXT machine, the power button on the Quokka NeXT HID must be used to turn on the NeXT machine.
- 3. Once the power is turned on LEDs on the QuokkADB will blink once for power and then blink for all devices found on the USB bus.
+    - When powered via the NeXT machine, the power button on the QuokkaNext HID must be used to turn on the NeXT machine.
+ 3. Once the power is turned on LEDs on the QuokkaNext HID will blink once for power and then blink for all devices found on the USB bus.
 
 # Background
 The code is largely based upon the [QuokkABD](https://github.com/rabbitholecomputing/QuokkADB-firmware) and uses the same micro processor. The QuokkADB inturn uses a large amount of code from [adbuino](https://github.com/akuker/adbuino) project.
@@ -40,11 +40,10 @@ The letter keys are as follows:
 
 # Upgrading firmware
 Download the latest `.uf2` firmware from here:
-https://github.com/rabbitholecomputing/QuokKM5-firmware/releases
+https://github.com/rabbitholecomputing/QuokkaNeXT-HID-firmware/releases
 
- 1. Switch the Quokka NeXT HID to USB device mode
- 2. Move the switch to Bootloader mode and plug in a USB cable to the USB-C port next to the switch and the other end into your computer
- 3. On your computer a drive labeled `RPI-RP2` should show up
- 5. Copy the `.uf2` firmware file to the `RPI-RP2` drive
- 6. Once it is finished copying, unplug the USB-C cable and move the switch back to USB host mode
- 7. The board should now be updated and read to use with your NeXT machine
+ 1. Move the switch to "UF2" mode and plug in a USB cable to the USB-C port next to the switch, labeled "USB-C PWR/UF2 ONLY" and the other end into your computer
+ 2. On your computer a drive labeled `RPI-RP2` should show up
+ 3. Copy the `.uf2` firmware file to the `RPI-RP2` drive
+ 4. Once it is finished copying, unplug the USB-C cable and move the switch back to "RUN"
+ 5. The board should now be updated and ready to use with your NeXT machine

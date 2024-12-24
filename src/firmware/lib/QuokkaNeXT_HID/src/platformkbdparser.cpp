@@ -1,10 +1,10 @@
 //----------------------------------------------------------------------------
 //
-//  QuokkKM5 non-ADB keyboard and mouse adapter
+//  QuokkaNeXT HID - a non-ADB keyboard and mouse adapter
 //     Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
 //     Copyright (C) 2022-2024 Rabbit Hole Computing LLC
 //
-//  This file is part of QuokKM5.
+//  This file is part of QuokkaNeXT HID.
 //
 //
 //  This file is free software: you can redistribute it and/or modify it under

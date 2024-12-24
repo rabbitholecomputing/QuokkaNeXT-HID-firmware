@@ -1,9 +1,9 @@
 //----------------------------------------------------------------------------
 //
-//  QuokKM5 non ADB NeXT keyboard and mouse adapter
+//  QuokkaNeXT HID - a USB Keyboard and Mouse to 5 pin NeXT Keyboard and Mouse input
 //     Copyright (C) 2024 Rabbit Hole Computing LLC
 //
-//  This file is part of QuokKM5.
+//  This file is part of QuokkaNeXT HID.
 //
 //  This file is free software: you can redistribute it and/or modify it under 
 //  the terms of the GNU General Public License as published by the Free 

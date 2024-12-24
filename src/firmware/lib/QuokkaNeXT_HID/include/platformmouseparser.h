@@ -1,5 +1,10 @@
 //----------------------------------------------------------------------------
 //
+//  QuokkaNeXT HID - a USB Keyboard and Mouse to 5 pin NeXT Keyboard and Mouse input
+//     Copyright (C) 2024 Rabbit Hole Computing LLC
+//
+//  This file is part of QuokkaNeXT HID and is derived from projects below.
+//
 //  QuokkADB ADB keyboard and mouse adapter
 //     Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
 //     Copyright (C) 2022 Rabbit Hole Computing LLC
@@ -37,10 +42,6 @@
 #include <scqueue.h>
 using simple_circular_queue::SCQueue;
 
-// USB response 1ms, worst NeXT 5 pin response time < ?, fastest human clicks per second < 30 or 1 per 33ms
-// Queue length if using a machine USB clicker 160
-// Queue length for humans ~ 5
-// Using 10
 #define MOUSE_CLICK_QUEUE_CAPACITY (256)
 
 //----------------------------------------------------------------------------

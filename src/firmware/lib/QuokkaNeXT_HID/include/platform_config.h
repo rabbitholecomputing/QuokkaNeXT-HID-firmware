@@ -1,13 +1,18 @@
-
 //---------------------------------------------------------------------------
 //
-//	ADBuino & QuokkADB ADB keyboard and mouse adapter
+//  QuokkaNeXT HID - a USB Keyboard and Mouse to 5 pin NeXT Keyboard and Mouse input
+//
+//     Copyright (C) 2024 Rabbit Hole Computing LLC
+//
+//  This file is part of QuokkaNeXT HID and is derived from projects below.
+//
+//	QuokkADB ADB keyboard and mouse adapter
 //
 //	   Copyright (C) 2017 bbraun
 //	   Copyright (C) 2021-2022 akuker
 //     Copyright (C) 2022 Rabbit Hole Computing LLC
 //
-//  This file is part of the ADBuino and the QuokkADB projects.
+//  This file is part of the QuokkADB project.
 //
 //  This file is free software: you can redistribute it and/or modify it under 
 //  the terms of the GNU General Public License as published by the Free 
@@ -25,19 +30,21 @@
 //---------------------------------------------------------------------------
 #pragma once
 
-#include <stdint.h>
-#include "next_io.h"
-#include "next_5pin_interface.h"
+// Use macros for version number
+#define FW_VER_NUM      "0.3.0"
+#define FW_VER_SUFFIX   "dev"
+#define PLATFORM_FW_VERSION FW_VER_NUM "-" FW_VER_SUFFIX 
+#define PRODUCT_NAME "Quokka NeXT HID"
+#define PLATFORM_FW_VER_STRING PRODUCT_NAME " firmware: " PLATFORM_FW_VERSION " " __DATE__ " " __TIME__ 
 
-class PlatformInterface : public N5PInterface 
-{
-  public:
-    virtual ~PlatformInterface() = default;
-    virtual void init() override; 
-    virtual void blockUntilResetCmd() override;
-    virtual N5PCommand ReceiveCommand() override;
-    virtual void sendPacket(uint8_t data[2]) override; 
-  protected:
-    NeXTIO m_io;
+#ifndef DEFAULT_MOUSE_SENSITIVITY_DIVISOR
+#define DEFAULT_MOUSE_SENSITIVITY_DIVISOR 16
+#endif
 
-};
+#define SAVE_TO_FLASH_BLINK_COUNT 4
+#define CLEAR_FLASH_BLINK_COUNT 5
+
+// Must be a power of 2
+#ifndef LOGBUFSIZE
+#define LOGBUFSIZE 65536
+#endif

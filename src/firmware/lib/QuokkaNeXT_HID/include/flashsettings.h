@@ -1,5 +1,11 @@
 //---------------------------------------------------------------------------
 //
+//  QuokkaNeXT HID - a USB Keyboard and Mouse to 5 pin NeXT Keyboard and Mouse input
+//
+//     Copyright (C) 2024 Rabbit Hole Computing LLC
+//
+//  This file is part of QuokkaNeXT HID and is derived from projects below.
+//
 //	QuokkADB ADB keyboard and mouse adapter
 //
 //     Copyright (C) 2022 Rabbit Hole Computing LLC
@@ -27,9 +33,9 @@
 #include <stdint.h>
 #include <hardware/flash.h>
 
-#define QUOKKM5_SETTINGS_MAGIC_NUMBER 0x1337
+#define QUOKKANEXT_HID_SETTINGS_MAGIC_NUMBER 0x1337
 
-struct __attribute((packed)) QuokKM5Settings 
+struct __attribute((packed)) QuokkaNeXT_HID_Settings 
 {
     uint16_t magic_number;
     uint8_t led_enabled: 1;
@@ -58,13 +64,13 @@ public:
     // reset in memory settings to defaults
     void reset();
 
-    inline QuokKM5Settings* settings() {return &_settings;}
+    inline QuokkaNeXT_HID_Settings* settings() {return &_settings;}
 private:
     uint32_t _capacity = 0;
     uint32_t _last_sector = 0;
     bool m_save_requested = false;
     bool m_clear_requested = false;
-    QuokKM5Settings _settings;
+    QuokkaNeXT_HID_Settings _settings;
 };
 
 extern FlashSettings setting_storage;

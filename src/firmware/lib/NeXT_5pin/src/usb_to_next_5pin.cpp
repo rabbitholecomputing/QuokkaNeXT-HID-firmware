@@ -1,5 +1,11 @@
 //---------------------------------------------------------------------------
 //
+//  QuokkaNeXT HID - a USB Keyboard and Mouse to 5 pin NeXT Keyboard and Mouse input
+//
+//     Copyright (C) 2024 Rabbit Hole Computing LLC
+//
+//  This file is part of QuokkaNeXT HID and is derived from projects below.
+//
 //	ADBuino & QuokkADB are ADB keyboard and mouse adapters
 //	   Copyright (C) 2021-2022 bbraun
 //	   Copyright (C) 2021-2022 akuker
@@ -31,11 +37,7 @@
 #include "next_5pin_keys.h"
 #include <stdint.h>
 #include <Arduino.h>
-// #ifdef ADBUINO
-// #include <Arduino.h>
-#ifdef QUOKKADB
 
-#endif
 #include <platform_logmsg.h>
 
 extern bool global_debug;

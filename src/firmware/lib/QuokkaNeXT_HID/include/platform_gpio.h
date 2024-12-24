@@ -1,10 +1,10 @@
 //---------------------------------------------------------------------------
 //
-//	QuokKM5 - USB Keyboard and Mouse to 5 pin NeXT Keyboard and Mouse input 
+//  QuokkaNeXT HID - a USB Keyboard and Mouse to 5 pin NeXT Keyboard and Mouse input
 //
 //     Copyright (C) 2024 Rabbit Hole Computing LLC
 //
-//  This file is part of QuokKM5 and is derived from projects below.
+//  This file is part of QuokkaNeXT HID and is derived from projects below.
 //
 //	QuokkADB ADB keyboard and mouse adapter
 //
@@ -31,30 +31,37 @@
 //----------------------------------------------------------------------------
 
 
-#include "platform_gpio.h"
+
+#pragma once
+#include <stdlib.h>
+#include <hardware/structs/sio.h>
 #include <hardware/gpio.h>
 #include <hardware/uart.h>
-#include <hardware/clocks.h>
+#include "next_io.h"
 
-void led_gpio_init(void)
-{
-    gpio_init(LED_GPIO);
-    gpio_set_function(LED_GPIO, GPIO_FUNC_SIO);
-    gpio_set_dir(LED_GPIO, GPIO_OUT);
-    LED_OFF();
-}
+// Status LED GPIOs
+#define LED_GPIO     18
+#define LED_ON()    sio_hw->gpio_set = 1 << LED_GPIO
+#define LED_OFF()   sio_hw->gpio_clr = 1 << LED_GPIO
+#define LED_SET(x)  (x ? sio_hw->gpio_set = 1 << LED_GPIO : sio_hw->gpio_clr = 1 << LED_GPIO)
 
-void next_pwr_gpio_init(void)
-{
-    gpio_init(NEXT_POWER_GPIO);
-    gpio_put(NEXT_POWER_GPIO, true);
-    gpio_disable_pulls(NEXT_POWER_GPIO);
-    gpio_set_function(NEXT_POWER_GPIO, GPIO_FUNC_SIO);
-    gpio_set_dir(NEXT_POWER_GPIO, GPIO_OUT);
-}
+// // NeXT non ADB data GPIOs
+#define NEXT_OUT_GPIO  0
+// pio bit clock need to run twice as fast as the output bit clock
+#define NEXT_OUT_BIT_CLK_DIV 7200 / 2
 
-void uart_gpio_init(void)
-{
-    uart_init(UART_PORT, UART_TX_BAUD);
-    gpio_set_function(UART_TX_GPIO, GPIO_FUNC_UART);
-}
+#define NEXT_IN_GPIO   1
+#define NEXT_IN_UART_CLK_DIV 900
+
+#define NEXT_POWER_GPIO     22
+#define POWER_BUTTON_DOWN() gpio_put(NEXT_POWER_GPIO, false)
+#define POWER_BUTTON_UP()   gpio_put(NEXT_POWER_GPIO, true)
+
+// UART out messaging
+#define UART_TX_GPIO    16
+#define UART_TX_BAUD    115200
+#define UART_PORT       uart0
+
+void next_pwr_gpio_init(void);
+void uart_gpio_init(void);
+void led_gpio_init(void);

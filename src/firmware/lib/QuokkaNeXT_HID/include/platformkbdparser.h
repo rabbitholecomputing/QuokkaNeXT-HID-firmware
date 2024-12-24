@@ -1,5 +1,10 @@
 //----------------------------------------------------------------------------
 //
+//  QuokkaNeXT HID - a USB Keyboard and Mouse to 5 pin NeXT Keyboard and Mouse input
+//     Copyright (C) 2024 Rabbit Hole Computing LLC
+//
+//  This file is part of QuokkaNeXT HID and is derived from projects below.
+//
 //  QuokkADB ADB keyboard and mouse adapter
 //     Copyright (C) 2011 Circuits At Home, LTD. All rights reserved.
 //     Copyright (C) 2022 Rabbit Hole Computing LLC
@@ -165,29 +170,7 @@ protected:
 
         KeyboardDevices keyboards_list[MAX_KEYBOARDS] = {};
         uint8_t HandleLockingKeys(uint8_t dev_addr, uint8_t instance, uint8_t key) {
-/*
-                uint8_t old_keys = kbdLockingKeys.bLeds;
 
-                switch(key) {
-                        // Num lock is used as a standard key '`' (grave)
-                        case UHS_HID_BOOT_KEY_NUM_LOCK:
-                                kbdLockingKeys.kbdLeds.bmNumLock = ~kbdLockingKeys.kbdLeds.bmNumLock;
-                                break;
-                        case UHS_HID_BOOT_KEY_CAPS_LOCK:
-                                kbdLockingKeys.kbdLeds.bmCapsLock = ~kbdLockingKeys.kbdLeds.bmCapsLock;
-                                break;
-                        case UHS_HID_BOOT_KEY_SCROLL_LOCK:
-                                kbdLockingKeys.kbdLeds.bmScrollLock = ~kbdLockingKeys.kbdLeds.bmScrollLock;
-                                break;
-                }
-
-                if(old_keys != kbdLockingKeys.bLeds ) {
-                        bool numlock = !!(kbdLockingKeys.kbdLeds.bmNumLock);
-                        bool capslock = !!(kbdLockingKeys.kbdLeds.bmCapsLock);
-                        bool scrolllock = !!(kbdLockingKeys.kbdLeds.bmScrollLock);
-                        SetUSBkeyboardLEDs(capslock, numlock, scrolllock);                        
-                }
-*/
                 return 0;
         };
 

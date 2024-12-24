@@ -1,5 +1,10 @@
 //---------------------------------------------------------------------------
 //
+//  QuokkaNeXT HID - a USB Keyboard and Mouse to 5 pin NeXT Keyboard and Mouse input
+//     Copyright (C) 2024 Rabbit Hole Computing LLC
+//
+//  This file is part of QuokkaNeXT HID and is derived from projects below.
+//
 //	QuokkADB ADB keyboard and mouse adapter
 //
 //	   Copyright (C) 2017 bbraun
@@ -47,14 +52,14 @@ void FlashSettings::init()
     // Read initial settings
     uint8_t* setting_buffer = read_settings_page();
     
-    if (((uint16_t*)setting_buffer)[0] == QUOKKM5_SETTINGS_MAGIC_NUMBER) 
+    if (((uint16_t*)setting_buffer)[0] == QUOKKANEXT_HID_SETTINGS_MAGIC_NUMBER) 
     {
         memcpy((void*)&_settings, setting_buffer, FLASH_PAGE_SIZE);
     }
     else
     {
         // set default values
-        _settings.magic_number = QUOKKM5_SETTINGS_MAGIC_NUMBER;
+        _settings.magic_number = QUOKKANEXT_HID_SETTINGS_MAGIC_NUMBER;
         reset();
     }
 }
