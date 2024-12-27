@@ -28,7 +28,7 @@ jobs:
       - name: Build firmware
         run: |
           cd quokkanext_hid/src/firmware
-          pio run -ve quokkanext_hid
+          pio run -ve QuokkaNeXT_HID
 
       - name: Rename firmware files
         run: |
