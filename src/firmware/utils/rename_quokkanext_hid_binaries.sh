@@ -37,7 +37,7 @@ SUFFIX=$(gcc -E utils/version-extractor.cpp -Ilib/QuokkaNeXT_HID/include/ | grep
 
 for file in $(ls .pio/build/QuokkaNeXT_HID/*.bin .pio/build/QuokkaNeXT_HID/*.elf .pio/build/QuokkaNeXT_HID/*.uf2)
 do
-    NEWNAME=$(echo $file | sed 's|.pio/build/QuokkaNeXT_HID/\(.*\)\.\(.*\)|Quokka-NeXT-HID-\1-v'$VERSION'-'$SUFFIX'_'$DATE'_'$COMMIT'.\2|')
+    NEWNAME=$(echo $file | sed 's|.pio/build/QuokkaNeXT_HID/\(.*\)\.\(.*\)|QuokkaNeXT-HID-\1-v'$VERSION'-'$SUFFIX'_'$DATE'_'$COMMIT'.\2|')
     echo $file to distrib/$NEWNAME
     cp $file distrib/$NEWNAME
 done
