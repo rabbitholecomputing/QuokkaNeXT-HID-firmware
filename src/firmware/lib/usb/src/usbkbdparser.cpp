@@ -139,7 +139,7 @@ void KbdRptParser::OnKeyUp(uint8_t mod, uint8_t key)
         PrintKey(mod, key);
     }
 
-    if (key == USB_KEY_F15 || key == USB_KEY_HOME)
+    if (key == USB_KEY_F5 || key == USB_KEY_F15 || key == USB_KEY_HOME)
     {
         PowerButton(false);
     }
