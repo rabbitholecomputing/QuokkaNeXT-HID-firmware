@@ -31,10 +31,10 @@
 #pragma once
 
 // Use macros for version number
-#define FW_VER_NUM      "0.3.0"
-#define FW_VER_SUFFIX   "dev"
+#define FW_VER_NUM      "1.0.0"
+#define FW_VER_SUFFIX   "release"
 #define PLATFORM_FW_VERSION FW_VER_NUM "-" FW_VER_SUFFIX 
-#define PRODUCT_NAME "Quokka NeXT HID"
+#define PRODUCT_NAME "QuokkaNeXT HID"
 #define PLATFORM_FW_VER_STRING PRODUCT_NAME " firmware: " PLATFORM_FW_VERSION " " __DATE__ " " __TIME__ 
 
 #ifndef DEFAULT_MOUSE_SENSITIVITY_DIVISOR

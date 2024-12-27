@@ -217,7 +217,7 @@ uint8_t usb_keycode_to_n5p_code(uint8_t usb_code)
         return N5P_KEYCODE_MUTE;
 
 
-/* Power key trapped at USB scancode level
+/* Power key trapped at USB scancode level, see: 'usbkbdparser.cpp'
     case USB_KEY_F15:
     case USB_KEY_HOME: // fall through to Help
         return N5P_KEYCODE_POWER;

@@ -97,7 +97,7 @@ void KbdRptParser::OnKeyDown(uint8_t mod, uint8_t key)
     if (c)
         OnKeyPressed(c);
 
-    if (key == USB_KEY_F15 || key == USB_KEY_HOME )
+    if (key == USB_KEY_F5 || key == USB_KEY_F15 || key == USB_KEY_HOME )
     {
         PowerButton(true);
     }
